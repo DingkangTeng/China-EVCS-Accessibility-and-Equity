@@ -4,4 +4,9 @@ ImportLog
 RasterFunctionTemplates
 *.pptx
 paper
-.docx
+*.docx
+/Data/充电Amap
+/Data/充电Baidu
+*.gdb
+Amap*.csv
+Baidu*.csv
