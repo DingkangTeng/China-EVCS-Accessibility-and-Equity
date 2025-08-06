@@ -10,3 +10,5 @@ paper
 *.gdb
 Amap*.csv
 Baidu*.csv
+*.code-workspace
+__pycache__
