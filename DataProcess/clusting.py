@@ -119,7 +119,7 @@ class clusting:
 if __name__ == "__main__":
     import os
     BASE_MAP = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="CNMap_City", encoding="utf-8")
-    RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_accessibility.csv"), encoding="utf-8")
+    RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
     RESULT = RESULT[RESULT["name"] != u"境界线"]
 
     # Clean Gini Nan
@@ -127,7 +127,7 @@ if __name__ == "__main__":
         RESULT.loc[RESULT["Relative_Accessibility_{}".format(y)].isna(), "M2SFCA_Gini_{}".format(y)] = np.nan
 
     a = clusting(RESULT.copy(), BASE_MAP.copy())
-    a.showK("M2SFCA_Gini")
-    a.showK("Relative_Accessibility")
+    a.showK("M2SFCA_Gini", False)
+    a.showK("Relative_Accessibility", False)
     a.clusting("Relative_Accessibility", 3)
-    a.clusting("M2SFCA_Gini", 2)
+    a.clusting("M2SFCA_Gini", 3)

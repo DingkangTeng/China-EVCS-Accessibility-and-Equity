@@ -4,7 +4,7 @@ import pandas as pd
 INDEX = "name"
 COLUMNS = ["2SFCA_Accessibility", "M2SFCA_Accessibility", "Relative_Accessibility", "2SFCA_Gini", "M2SFCA_Gini"]
 OTHER_COLUMNS = ["gb"]
-Y_LABEL_SIZE = 12 # 小四
+FONT_SIZE = Y_LABEL_SIZE = 12 # 小四
 NULL_CITIES = {u"白杨市", u"北屯市", u"莲花山风景林自然保护区", u"昆玉市", u"图木舒克市"}
 #昆玉市 and 图木舒克市 only have two years data and will influence the result of clusting
 

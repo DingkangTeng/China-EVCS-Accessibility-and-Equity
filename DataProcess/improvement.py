@@ -9,18 +9,16 @@ def improvement(RESULT: pd.DataFrame, colName: str) -> None:
     plotSet()
     calImprovement(RESULT, colName)
     negativeData = RESULT[RESULT["{}_2025-2015".format(colName)] < 0]["{}_2025-2015".format(colName)]
-    zeroData = RESULT[RESULT["{}_2025-2015".format(colName)] == 0]["{}_2025-2015".format(colName)]
     positiveData = RESULT[RESULT["{}_2025-2015".format(colName)] >= 0]["{}_2025-2015".format(colName)]
 
     binsPositive = np.linspace(0, positiveData.max(), 10) # 10 groups
     countsPositive, binEdges = np.histogram(positiveData, bins=binsPositive) 
     countNegative = len(negativeData)
-    countZero = len(zeroData)
-    allCounts = np.concatenate([[countNegative, countZero], countsPositive])
+    allCounts = np.concatenate([[countNegative], countsPositive])
     total = allCounts.sum()
     percentages = allCounts / total * 100
 
-    labels = ["<0", "0"]
+    labels = ["<0"]
     for i in range(len(binsPositive) - 1):
         start = binsPositive[i]
         end = binsPositive[i + 1]
@@ -52,8 +50,8 @@ def improvement(RESULT: pd.DataFrame, colName: str) -> None:
 
     # 添加图例和统计信息
     plt.legend(['Change Curve', 'Percentage'], loc='best')
-    plt.figtext(0.15, 0.85, f'Total data points: {len(RESULT["{}_2025-2015".format(colName)])}', fontsize=10)
-    plt.figtext(0.15, 0.82, f'Negative values: {countNegative} ({percentages[0]:.1f}%)', fontsize=10)
+    plt.figtext(0.15, 0.85, f'Total data points: {allCounts}', fontsize=10)
+    plt.figtext(0.15, 0.82, f'Negative values: {countNegative} ({percentages[0]:.02f}%)', fontsize=10)
 
     # 调整布局
     plt.tight_layout()
