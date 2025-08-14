@@ -60,7 +60,7 @@ def drawClusting(RESULT: pd.DataFrame, BASE_MAP: gpd.GeoDataFrame, reativeCluste
     result = pd.DataFrame(result, columns=["name", "clusting_efficiency", "clusting_equity", "clusting"])
     result = RESULT.set_index("name").join(result.set_index("name")).drop(columns='gb')
     if savePath != '':
-        result.to_csv(os.path.join(savePath, "city_with_clusting.csv"), encoding='utf-8', index=False)
+        result.to_csv(os.path.join(savePath, "city_with_clusting.csv"), encoding='utf-8')
     result = BASE_MAP.join(result, on=INDEX)
     titles = {"clusting_efficiency": "Efficiency", "clusting_equity": "Equity", "clusting": "Efficiency and Equity"}
     for i in ["clusting_efficiency", "clusting_equity", "clusting"]:

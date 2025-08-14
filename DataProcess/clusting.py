@@ -9,9 +9,9 @@ from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
 try:
-    from .setting import INDEX, OTHER_COLUMNS, calImprovement, NULL_CITIES, plotSet
+    from .setting import INDEX, OTHER_COLUMNS, NULL_CITIES, plotSet
 except:
-    from setting import INDEX, OTHER_COLUMNS, calImprovement, NULL_CITIES, plotSet
+    from setting import INDEX, OTHER_COLUMNS, NULL_CITIES, plotSet
 
 # Clusting analysis
 class clusting:
@@ -101,18 +101,14 @@ class clusting:
     def showK(self, colName: str, show: bool = True):
         self.features[colName] = {}
         df = self.RESULT.loc[:, self.__getLabel(colName)]
-        calImprovement(df, colName)
         for index, citySeries in zip(df.index, df.to_numpy()):
-            if np.isnan(citySeries[-1]):
-                self.features[colName][index] = None
-                continue # Sikp city only have 2025 record
-            citySeries = citySeries[~np.isnan(citySeries)]
+            citySeries = citySeries[~np.isnan(citySeries)] # drop NaN
+            if len(citySeries) < 2:
+                continue # Skip city only have 2025 record
             self.features[colName][index] = [
-                np.polyfit(range(len(citySeries) - 1), citySeries[:-1], 1)[0],  # 趋势斜率 and drop the last col of total increasement
-                np.std(citySeries[:-1], ),           # 波动性
-                citySeries[-1]  # Totla increasment
+                np.polyfit(range(len(citySeries)), citySeries, 1)[0], # binomial fitting slop
+                np.std(citySeries), # standard deviation
             ]
-
         if show:
             self.__findOptimalK(self.features[colName])
 
@@ -128,6 +124,6 @@ if __name__ == "__main__":
 
     a = clusting(RESULT.copy(), BASE_MAP.copy())
     a.showK("M2SFCA_Gini", False)
-    a.showK("Relative_Accessibility", False)
+    a.showK("Relative_Accessibility",False)
     a.clusting("Relative_Accessibility", 3)
-    a.clusting("M2SFCA_Gini", 3)
+    a.clusting("M2SFCA_Gini", 2)

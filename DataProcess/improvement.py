@@ -2,12 +2,21 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from .setting import plotSet, calImprovement
+from .setting import plotSet
 
 # Proportional distribution with different levels of improvement in accessibility from 2015 to 2025
 def improvement(RESULT: pd.DataFrame, colName: str) -> None:
     plotSet()
-    calImprovement(RESULT, colName)
+    improvement = []
+    subset = RESULT[["{}_{}".format(colName, y) for y in range(2015, 2026)]]
+    for index, citySeries in zip(subset.index, subset.to_numpy()):
+        citySeries = citySeries[~np.isnan(citySeries)] # drop NaN
+        if len(citySeries) < 2:
+            improvement.append([index, None])
+        else:
+            improvement.append([index, np.polyfit(range(len(citySeries)), citySeries, 1)[0]])
+    improvement = pd.DataFrame(improvement, columns=["index", "{}_2025-2015".format(colName)]).set_index("index")
+    RESULT = subset.join(improvement)
     negativeData = RESULT[RESULT["{}_2025-2015".format(colName)] < 0]["{}_2025-2015".format(colName)]
     positiveData = RESULT[RESULT["{}_2025-2015".format(colName)] >= 0]["{}_2025-2015".format(colName)]
 
