@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 INDEX = "name"
 COLUMNS = ["2SFCA_Accessibility", "M2SFCA_Accessibility", "Relative_Accessibility", "2SFCA_Gini", "M2SFCA_Gini"]
@@ -13,3 +14,18 @@ ECO_COL = [u"GDP(亿元)", u"人均GDP(元)", u"第一产业占比(%)", u"第二
 def plotSet() -> None:
     plt.style.use('ggplot')
     plt.rcParams["font.sans-serif"] = "Times New Roman"
+
+    return
+
+def calSlop(RESULT: pd.DataFrame, colName: str) -> pd.DataFrame:
+    improvement = []
+    subset = RESULT[["{}_{}".format(colName, y) for y in range(2015, 2026)]]
+    for index, citySeries in zip(subset.index, subset.to_numpy()):
+        citySeries = citySeries[~np.isnan(citySeries)] # drop NaN
+        if len(citySeries) < 2:
+            improvement.append([index, None])
+        else:
+            improvement.append([index, np.polyfit(range(len(citySeries)), citySeries, 1)[0]])
+    improvement = pd.DataFrame(improvement, columns=["index", "{}_2025-2015".format(colName)]).set_index("index")
+
+    return RESULT.join(improvement).dropna(subset="{}_2025-2015".format(colName))
