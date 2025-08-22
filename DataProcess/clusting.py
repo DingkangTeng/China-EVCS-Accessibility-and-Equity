@@ -71,12 +71,12 @@ class clusting:
         df = df.join(results)
 
         clusterResult = {}
-        for cluster_id in range(CLUSTER_NUM):
-            cluster_data = df[df["cluster"] == cluster_id]
-            cities = cluster_data.index.to_list()
-            print(f"Cluster {cluster_id}: {cities} ({len(cities)})")
-            clusterResult[cluster_id] = cities
-            plt.plot(np.nanmedian(cluster_data.drop(columns="cluster"), axis=0), label=f'Cluster {cluster_id}')
+        for clusterId in range(CLUSTER_NUM):
+            clusterData = df[df["cluster"] == clusterId]
+            cities = clusterData.index.to_list()
+            print(f"Cluster {clusterId}: {cities} ({len(cities)})")
+            clusterResult[clusterId] = cities
+            plt.plot(np.nanmedian(clusterData.drop(columns="cluster"), axis=0), label=f'Cluster {clusterId}')
         
         plt.legend()
         plt.show()

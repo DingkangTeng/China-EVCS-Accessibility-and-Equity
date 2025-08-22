@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,12 +10,13 @@ except:
     from setting import ECO_COL, plotSet
 
 class clustingAnalysis:
-    __slots__ = ["clustingResult", "gdp", "_analysisType"]
+    __slots__ = ["clustingResult", "gdp", "_analysisType", "_analysisValue"]
 
     def __init__(self, clustingResult: pd.DataFrame, gdp: pd.DataFrame) -> None:
         self.clustingResult = clustingResult
         self.gdp = gdp
         self._analysisType: str | None = None
+        self._analysisValue: str | None = None
         
     def analysisAll(self) -> "_AnalysisExecutorImpl":
         self._analysisType = "clusting"
@@ -22,13 +24,15 @@ class clustingAnalysis:
     
     def analysisEquity(self) -> "_AnalysisExecutorImpl":
         self._analysisType =  "clusting_equity"
+        self._analysisValue = "M2SFCA_Gini_"
         return _AnalysisExecutorImpl(self)
 
     def analysisEfficiency(self)  -> "_AnalysisExecutorImpl":
         self._analysisType = "clusting_efficiency"
+        self._analysisValue = "Relative_Accessibility_"
         return _AnalysisExecutorImpl(self)
     
-    def sankey(self) -> None:
+    def sankey(self, path: str = "") -> None:
         df = self.clustingResult[["name", "clusting_equity", "clusting_efficiency"]].copy().dropna()
         grouped = df.groupby(["clusting_equity", "clusting_efficiency"]).size().reset_index(name='count')
 
@@ -54,17 +58,18 @@ class clustingAnalysis:
             ))])
 
         # fig.show()
-        fig.write_html("sankey.html")
+        fig.write_html(os.path.join(path, "sankey.html"))
 
         return
 
 class _AnalysisExecutorImpl(clustingAnalysis):
-    __slots__ = ["clusterStats", "df", "analysisType"]
+    __slots__ = ["clusterStats", "df", "analysisType", "analysisValue"]
 
     def __init__(self, builder: clustingAnalysis) -> None:
         super().__init__(builder.clustingResult, builder.gdp)
         plotSet()
         self.analysisType = builder._analysisType
+        self.analysisValue = builder._analysisValue
         self.df = self.clustingResult.dropna(subset=[self.analysisType]).set_index("name").join(self.gdp[[u"区县"] + ECO_COL].set_index(u"区县"))
         self.clusterStats = self.df.groupby(self.analysisType).agg({
             u"GDP(亿元)": ["mean", "median", "std"],
@@ -154,14 +159,35 @@ class _AnalysisExecutorImpl(clustingAnalysis):
         plt.grid(axis='y', alpha=0.3)
         plt.tight_layout()
         plt.show()
+        plt.close()
 
         return
+    
+    def drawClusting(self) -> None:
+        if self.analysisValue is None:
+            print("Please specifice a sub clusting type.")
+            return
+        
+        years = list(range(2015, 2026))
+        xPositions = np.arange(len(years))
+        data = self.df.copy()
+        data = data[["{}{}".format(self.analysisValue, y) for y in years] + [self.analysisType]]
+        
+        for clusterId in data[self.analysisType].unique().tolist():
+            clusterData = data.loc[data[self.analysisType] == clusterId].drop(columns=self.analysisType)
+            plt.plot(xPositions, np.nanmedian(clusterData, axis=0), label=clusterId)
+            plt.fill_between(xPositions, np.nanmin(clusterData, axis=0), np.nanmax(clusterData, axis=0), alpha=0.3)
+        
+        plt.legend()
+        plt.show()
 
+        return
+    
 if __name__ == "__main__":
     a = pd.read_csv("China_Acc_Results/Result/city_with_clusting.csv", encoding="utf-8")
     gdp = pd.read_excel("China_Acc_Results/Result/city_gdponly.xlsx")
-    # b = clustingAnalysis(a, gdp).analysisAll()
-    # # b.analysis()
-    # # b.drawRadar()
-    # b.showTime()
-    clustingAnalysis(a, gdp).sankey()
+    b = clustingAnalysis(a, gdp).analysisEfficiency()
+    # b.analysis()
+    # b.drawRadar()
+    b.drawClusting()
+    # clustingAnalysis(a, gdp).sankey()

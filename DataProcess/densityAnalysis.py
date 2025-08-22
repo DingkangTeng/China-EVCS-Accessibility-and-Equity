@@ -27,7 +27,7 @@ class densityAnalysis:
         colName, colThreshold = colNames
         self.colName = "{}_2025-2015".format(colName)
         result = calSlop(RESULT, colName)
-        result = result.loc[result[self.colName] <= 0].set_index("name").join(gdpDf)
+        result = result.loc[result[self.colName] <= colThreshold].set_index("name").join(gdpDf)
         result = result.loc[result[u"GDP(亿元)"] >= gdpThreshold]
         self.evcs = evcs.join(result, on="cityname").dropna(subset=self.colName)
         self.citiesList = result.index.tolist()
@@ -40,7 +40,7 @@ class densityAnalysis:
     def cal(self) -> None:
         for city in self.citiesList:
             boundary = self.boundarys.loc[self.boundarys["name"] == city]
-            for y in [2015, 2018, 2020]:
+            for y in [2015, 2018, 2020, 2023, 2025]:
                 raster = os.path.join(self.rasterPath, "chn_ppp_{}_1km_Aggregated_UNadj.tif".format(y if y < 2020 else 2020))
                 # Transfore geo
                 with rio.open(raster) as src:
@@ -75,7 +75,8 @@ class densityAnalysis:
                     cluster = "cluster{}".format(desc)
                     clusterType = "clusterType{}".format(desc)
                     analysisGrid["lisa{}".format(desc)] = localMoran.Is
-                    analysisGrid[p] = localMoran.p_sim
+                    # analysisGrid[p] = localMoran.p_sim
+                    analysisGrid[p] = 0
                     analysisGrid[cluster] = localMoran.q
                     
                     analysisGrid[clusterType] = "Non Significant"
@@ -84,28 +85,59 @@ class densityAnalysis:
                     analysisGrid.loc[(analysisGrid[p] < 0.05) & (analysisGrid[cluster] == 2), clusterType] = "LH"
                     analysisGrid.loc[(analysisGrid[p] < 0.05) & (analysisGrid[cluster] == 4), clusterType] = "HL"
 
-                fig, ax = plt.subplots(1, 2, figsize=(20, 10))
-                ax[0].axis("off")
-                ax[1].axis("off")
+                analysisGrid["diff"] = "EVCS:" + analysisGrid["clusterTypeEVCS"] + ", Popilation:" + analysisGrid["clusterTypePop"]
+                maskNonSig = (analysisGrid["clusterTypeEVCS"] == "Non Significant") | (analysisGrid["clusterTypePop"] == "Non Significant")
+                maskSame = (analysisGrid["clusterTypeEVCS"] == analysisGrid["clusterTypePop"]) & ~maskNonSig
+                analysisGrid.loc[maskNonSig, "diff"] = "Non Significant"
+                analysisGrid.loc[maskSame, "diff"] = "Same Distribution"
+
+                fig, ax = plt.subplots()
+                ax.axis("off")
                 colors = {
-                    "HH": "red",
-                    "LL": "blue",
-                    "LH": "lightblue",
-                    "HL": "pink",
+                    # Same
+                    "Same Distribution": "#37FF00",
+                    # Highly unmatch - warm
+                    "EVCS:HH, Popilation:LL": "#D73027",
+                    "EVCS:LL, Popilation:HH": "#FC8D59",
+                    # Medial unmatch - middle
+                    "EVCS:HH, Popilation:LH": "#FFD86E",
+                    "EVCS:HH, Popilation:HL": "#FDFB87",
+                    "EVCS:HL, Popilation:HH": "#00FFFF",
+                    "EVCS:HL, Popilation:LL": "#59B4FF",
+                    "EVCS:HL, Popilation:LH": "#537EA1",
+                    "EVCS:LL, Popilation:LH": "#1100FF",
+                    "EVCS:LL, Popilation:HL": "#5C59FF",
+                    "EVCS:LH, Popilation:HH": "#AE00FF",
+                    "EVCS:LH, Popilation:LL": "#E254FF",
+                    "EVCS:LH, Popilation:HL": "#FF9CFD",
+                    # Non significant
                     "Non Significant": "lightgrey"
                 }
+                
+                analysisGrid.plot(ax=ax, color=analysisGrid["diff"].map(colors), categorical=True, legend=True)
 
-                # Left side: Population
-                analysisGrid.plot(ax=ax[0], color=analysisGrid["clusterTypePop"].map(colors),
-                                categorical=True, legend=True)
-                cityEvcs.plot(ax=ax[0], color='black', markersize=5, alpha=0.5)
-                ax[0].set_title("LISA Cluster of Population")
+                # fig, ax = plt.subplots(1, 2, figsize=(20, 10))
+                # ax[0].axis("off")
+                # ax[1].axis("off")
+                # colors = {
+                #     "HH": "red",
+                #     "LL": "blue",
+                #     "LH": "lightblue",
+                #     "HL": "pink",
+                #     "Non Significant": "lightgrey"
+                # }
 
-                # Right side: EVCS
-                analysisGrid.plot(ax=ax[1], color=analysisGrid["clusterTypeEVCS"].map(colors),
-                                categorical=True, legend=True)
-                cityEvcs.plot(ax=ax[1], color='black', markersize=5, alpha=0.5)
-                ax[1].set_title("LISA Cluster of Charging Stations")
+                # # Left side: Population
+                # analysisGrid.plot(ax=ax[0], color=analysisGrid["clusterTypePop"].map(colors),
+                #                 categorical=True, legend=True)
+                # cityEvcs.plot(ax=ax[0], color='black', markersize=5, alpha=0.5)
+                # ax[0].set_title("LISA Cluster of Population")
+
+                # # Right side: EVCS
+                # analysisGrid.plot(ax=ax[1], color=analysisGrid["clusterTypeEVCS"].map(colors),
+                #                 categorical=True, legend=True)
+                # cityEvcs.plot(ax=ax[1], color='black', markersize=5, alpha=0.5)
+                # ax[1].set_title("LISA Cluster of Charging Stations")
 
                 plt.tight_layout()
                 print("{}:{}".format(city, y))
@@ -137,7 +169,9 @@ class densityAnalysis:
             {
                 'geometry': gridPolygons,
                 'raster_value': gridValues
-            }, crs=src.crs)
+            },
+            crs=src.crs
+        )
 
 
 if __name__ == "__main__":
@@ -152,5 +186,5 @@ if __name__ == "__main__":
     boundarys = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="CNMap_City")
     gdp = pd.read_excel("China_Acc_Results/Result/city_gdponly.xlsx").set_index(u"区县")
 
-    densityAnalysis(RESULT, ("Relative_Accessibility", -0.02), evcs, (gdp, 15000), boundarys, r"C:\\0_PolyU\\cn_2015-2025_pop\\").cal()
+    densityAnalysis(RESULT, ("Relative_Accessibility", 0), evcs, (gdp, 15000), boundarys, r"C:\\0_PolyU\\cn_2015-2025_pop\\").cal()
     
