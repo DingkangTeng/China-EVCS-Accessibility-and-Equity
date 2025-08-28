@@ -1,14 +1,15 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 
 try:
-    from .setting import plotSet, calSlop
+    from .setting import plotSet, calSlop, FIG_SIZE, TITLE
 except:
-    from setting import plotSet, calSlop
+    from setting import plotSet, calSlop, FIG_SIZE, TITLE
 
 # Proportional distribution with different levels of improvement in accessibility from 2015 to 2025
-def improvement(RESULT: pd.DataFrame, colName: str) -> None:
+def improvement(RESULT: pd.DataFrame, colName: str, path: str = "") -> None:
     plotSet()
     RESULT = calSlop(RESULT, colName)
     RESULT = RESULT.loc[:, ["{}_2025-2015".format(colName)]]
@@ -46,37 +47,74 @@ def improvement(RESULT: pd.DataFrame, colName: str) -> None:
     #     end = binsPositive[i + 1]
     #     labels.append(f'{start:.2f}-{end:.2f}')
     labels = []
+    boxTicks = set()
     for d in [binsNegative, binsPositive]:
         for i in range(len(d) - 1):
             start = d[i]
             end = d[i + 1]
+            boxTicks.add(start)
+            boxTicks.add(end)
             labels.append(f'{start:.2f}-{end:.2f}')
+    boxTicks = list(boxTicks)
+    boxTicks.sort()
 
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=FIG_SIZE)
+    gs = GridSpec(1, 2, width_ratios=[10, 1], wspace=0.05)
+    ax = plt.subplot(gs[0])
+    ax2 = plt.subplot(gs[1])
+
     xPos = np.arange(len(labels))
-    bars = plt.bar(xPos, percentages, 
-                # width=0.8*(binEdges[1]-binEdges[0]),  # 宽度为区间宽度的80%
-                alpha=0.7, 
-                color='skyblue',
-                edgecolor='black')
+    bars = ax.barh(
+        xPos,
+        percentages, 
+        alpha=0.7, 
+        color="teal",
+        edgecolor=None
+    )
 
-    # 绘制变化曲线（虚线）
-    plt.plot(xPos, percentages, 'r--', marker='o', linewidth=2, markersize=8)
+    ax.plot(percentages, xPos, "r--", marker='o', linewidth=2, markersize=8)
 
-    # 设置x轴刻度为区间边界
-    plt.xticks(xPos, labels, rotation=45, fontsize=10)
-    plt.xlabel("Slops", fontsize=12)
-    plt.ylabel('Percentage (%)', fontsize=12)
-    plt.grid(axis='y', alpha=0.3)
+    ax.set_yticks(xPos, labels, rotation=45)
+    ax.set_ylabel(
+        "{} Indeics Slops".format(TITLE.get(colName)),
+        fontweight="bold"
+    )
+    ax.set_xlabel(
+        "Percentage (%)",
+        fontweight="bold"
+    )
 
-    # 添加图例和统计信息
-    plt.legend(['Change Curve', 'Percentage'], loc='best')
-    plt.figtext(0.15, 0.85, f'Total data points: {allCounts}', fontsize=10)
-    plt.figtext(0.15, 0.82, f'Negative values: {countNegative} ({countNegative / (countNegative + countPositive) * 100:.02f}%)', fontsize=10)
+    ax.legend(["Change Curve", "Percentage"], loc="best")
 
-    # 调整布局
+    ax2.boxplot(
+        RESULT.dropna(),
+        widths=0.6,
+        showmeans=True,
+        patch_artist=True,
+        boxprops = {"color": "gray", "facecolor":"teal"},
+        flierprops = {"marker":'.', "markerfacecolor":"gray", "markeredgecolor": "none"},
+        medianprops = {"color": "black"},
+        meanprops = {"color": "gray"},
+        whiskerprops = {"color": "gray"},
+        capprops = {"color": "gray"}
+    )
+
+    ax2.set_xticks([])
+    ax2.yaxis.tick_right()
+    ax2.set_yticks(boxTicks)
+
+    print(f"Total data points: {allCounts}")
+    print(f"Negative values: {countNegative} ({countNegative / (countNegative + countPositive) * 100:.02f}%)")
+
     plt.tight_layout()
-    plt.show()
+    plt.subplots_adjust(left=0.18)
+    if path == "":
+        plt.show()
+    else:
+        plt.savefig(os.path.join(path, "{}_slops.jpg".format(TITLE.get(colName))), dpi=300)
+    plt.close()
+
+    return
 
 if __name__ == "__main__":
     import os
@@ -86,5 +124,6 @@ if __name__ == "__main__":
     # Clean Gini Nan
     for y in range(2015, 2026):
         RESULT.loc[RESULT["Relative_Accessibility_{}".format(y)].isna(), "M2SFCA_Gini_{}".format(y)] = np.nan
-    improvement(RESULT.copy(), "Relative_Accessibility")
-    improvement(RESULT.copy(), "M2SFCA_Gini")
+    improvement(RESULT.copy(), "Relative_Accessibility", r".\\paper\\figure")
+    improvement(RESULT.copy(), "M2SFCA_Gini", r".\\paper\\figure")
+    # improvement(RESULT.copy(), "M2SFCA_Gini")

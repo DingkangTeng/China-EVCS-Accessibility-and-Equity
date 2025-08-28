@@ -2,21 +2,33 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
+# Constant
 INDEX = "name"
 COLUMNS = ["2SFCA_Accessibility", "M2SFCA_Accessibility", "Relative_Accessibility", "2SFCA_Gini", "M2SFCA_Gini"]
+TITLE = {"M2SFCA_Gini": "Equity", "Relative_Accessibility":"Efficiency"}
 OTHER_COLUMNS = ["gb"]
-FONT_SIZE = Y_LABEL_SIZE = 12 # 小四
 NULL_CITIES = {u"白杨市", u"莲花山风景林自然保护区", u"昆玉市", u"图木舒克市"}
 NO_GDP = {u"中农发山丹马场", u"三沙市"}
 #昆玉市 and 图木舒克市 only have two years data and will influence the result of clusting
 ECO_COL = [u"GDP(亿元)", u"人均GDP(元)", u"第一产业占比(%)", u"第二产业占比(%)", u"第三产业占比(%)"]
 
+# Fig setting
+LABEL_SIZE = 24
+TICK_SIZE = int(LABEL_SIZE * 0.9)
+FIG_SIZE = (10,8)
+FIG_SIZE_H = (8, 10)
+
 def plotSet() -> None:
     plt.style.use('ggplot')
     plt.rcParams["font.sans-serif"] = "Times New Roman"
+    plt.rcParams["font.size"] = TICK_SIZE
+    plt.rcParams["xtick.labelsize"] = TICK_SIZE
+    plt.rcParams["ytick.labelsize"] = TICK_SIZE
+    plt.rcParams["axes.labelsize"] = LABEL_SIZE
 
     return
 
+# Common function
 def calSlop(RESULT: pd.DataFrame, colName: str) -> pd.DataFrame:
     improvement = []
     subset = RESULT[["{}_{}".format(colName, y) for y in range(2015, 2026)]]
