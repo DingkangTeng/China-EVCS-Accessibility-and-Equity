@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import geopandas as gpd
 
 from .setting import INDEX, COLUMNS, OTHER_COLUMNS
 
@@ -22,6 +23,43 @@ def mergeData(PATH: str) -> None:
     df = DF[0]
     for df1 in DF[1:]:
         df = df.join(df1.drop(columns=OTHER_COLUMNS))
-    df.to_csv(os.path.join(PATH, "Result", "city_accessibility.csv"), encoding="utf-8")
+    df.to_csv(os.path.join(PATH, "Result", "city_efficiency.csv"), encoding="utf-8")
+
+    return
+
+def calUrbanRatio(file: str | tuple[str, str], savePath: str = r"China_Acc_Results\\Result\\") -> None:
+    if isinstance(file, str):
+        a = gpd.read_file(file, encoding="utf-8")
+    else:
+        a = gpd.read_file(file[0], layer=file[1], encoding="utf-8")
+    a["Urban_Ratio"] = 0
+    for c in a["name"].unique().tolist():
+        area = pd.Series(a.loc[a["name"] == c, "Shape_Area"]).sum()
+        a.loc[a["name"] == c, "Urban_Ratio"] = round(a.loc[a["name"] == c, "Shape_Area"] / area * 100, 2)
+        sumV = pd.Series(a.loc[a["name"] == c, "Urban_Ratio"]).sum()
+        if sumV != 100:
+            diff = 100 - sumV
+            maxR = pd.Series(a.loc[a["name"] == c, "Urban_Ratio"]).max()
+            if diff == 0.01 or diff == -0.01:
+                if a.loc[a["name"] == c, "Urban_Ratio"][0] == a.loc[a["name"] == c, "Urban_Ratio"][1]: # type: ignore
+                    a.loc[a["name"] == c, "Urban_Ratio"][0] += diff # type: ignore
+                else:
+                    a.loc[(a["name"] == c) & (a["Urban_Ratio"] == maxR), "Urban_Ratio"] += diff
+            else:
+                sp1 = round(diff / 2)
+                sp2 = diff - sp1
+                if diff > 0:
+                    ma = max(sp1, sp2)
+                    mi = min(sp1, sp2)
+                else:
+                    ma = min(sp1, sp2)
+                    mi = max(sp1, sp2)
+                if a.loc[a["name"] == c, "Urban_Ratio"][0] == a.loc[a["name"] == c, "Urban_Ratio"][1]: # type: ignore
+                    a.loc[a["name"] == c, "Urban_Ratio"][0] += sp1 # type: ignore
+                    a.loc[a["name"] == c, "Urban_Ratio"][1] += sp2 # type: ignore
+                else:
+                    a.loc[(a["name"] == c) & (a["Urban_Ratio"] == maxR), "Urban_Ratio"] += ma
+                    a.loc[(a["name"] == c) & ~(a["Urban_Ratio"] == maxR), "Urban_Ratio"] += mi
+    a.drop(columns="geometry").to_csv(os.path.join(savePath, "city_urbanRatio.csv"), encoding="utf-8", index=False)
 
     return

@@ -3,14 +3,19 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 
-from .setting import plotSet, FIG_SIZE, TITLE
+try:
+    from .setting import plotSet, FIG_SIZE, TITLE
+except:
+    from setting import plotSet, FIG_SIZE, TITLE
+
+from typing import Iterable
 
 def boxPlot(
     RESULT: pd.DataFrame,
-    colName: str | list[str],
+    colName: str | Iterable,
     ylabel: str = "",
     ylim: tuple[float, float] = (0.0, 0.0),
-    xticklabel: list[str] = [],
+    xticklabel: Iterable = [],
     path: str = ""
     ) -> None:
     plotSet()
@@ -52,7 +57,10 @@ def boxPlot(
         fontweight="bold"
     )
     if ylim != (0.0, 0.0):
-        plt.ylim(ylim)
+        miny = ylim[0]
+        maxy = ylim[1]
+        step = (maxy - miny) / 5
+        plot.set_yticks([miny + x * step for x in range(0,6)])
     else:
         plot.set_yticks([0.2, 0.4, 0.6, 0.8, 1])
     
@@ -64,3 +72,14 @@ def boxPlot(
     plt.close()
 
     return
+
+# Debug
+if __name__ == "__main__":
+    # df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_population.xlsx")
+    # df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_gdp.xlsx")
+    # df = pd.read_excel(r"China_Acc_Results\Result\Roads_Density.xlsx")
+    df = pd.read_excel(r"China_Acc_Results\Result\Sample_rate.xlsx")
+    colName = list(range(2015, 2026))
+    # boxPlot(df, colName, "Sample rates", xticklabel=colName)
+    # boxPlot(df, colName, "Roads network density", xticklabel=colName)
+    boxPlot(df, list(range(2018, 2026)), "Sample rates(%)", (0, 100), xticklabel=list(range(2018, 2026)))

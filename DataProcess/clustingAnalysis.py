@@ -6,9 +6,9 @@ import plotly.graph_objects as go
 import seaborn as sns
 
 try:
-    from .setting import ECO_COL, plotSet, FIG_SIZE, TITLE
+    from .setting import ECO_COL, plotSet, FIG_SIZE, TITLE, BAR_COLORS
 except:
-    from setting import ECO_COL, plotSet, FIG_SIZE, TITLE
+    from setting import ECO_COL, plotSet, FIG_SIZE, TITLE, BAR_COLORS
 
 class clustingAnalysis:
     __slots__ = ["clustingResult", "gdp", "path", "_indicator", "_analysisType", "_analysisValue"]
@@ -77,7 +77,9 @@ class clustingAnalysis:
         for i in equity:
             col = []
             for j in efficiency:
-                col.append(grouped.loc[(grouped["clusting_equity"] == i) & (grouped["clusting_efficiency"] == j), "count"].values[0]) # type: ignore
+                col.append(
+                    grouped.loc[(grouped["clusting_equity"] == i) & (grouped["clusting_efficiency"] == j), "count"].values[0] # type: ignore
+                )
             matrix.append(col)
 
         plt.figure(figsize=FIG_SIZE)
@@ -119,7 +121,9 @@ class _AnalysisExecutorImpl(clustingAnalysis):
         self.analysisValue = builder._analysisValue
         self.indicator = self._indicator
         if self.indicator == "gdp":
-            self.df = self.clustingResult.dropna(subset=[self.analysisType]).set_index("name").join(self.gdp[[u"区县"] + ECO_COL].set_index(u"区县"))
+            self.df = self.clustingResult.dropna(subset=[self.analysisType]).set_index("name").join(
+                self.gdp[[u"区县"] + ECO_COL].set_index(u"区县")
+            )
             self.clusterStats = self.df.groupby(self.analysisType).agg({
                 u"GDP(亿元)": ["mean", "median", "std"],
                 u"人均GDP(元)": ["mean", "median"], # Per Capita GDP
@@ -133,13 +137,32 @@ class _AnalysisExecutorImpl(clustingAnalysis):
                 "avgPGDP", "midPGDP",
                 "PPI", "PSI", "PTI"
             ]
+
         elif self.indicator == "ev":
-            self.df = self.clustingResult.dropna(subset=[self.analysisType]).set_index("name").join(self.gdp[[u"城市", u"保有量"]].set_index(u"城市"))
+            self.df = self.clustingResult.dropna(subset=[self.analysisType]).set_index("name").join(
+                self.gdp[[u"城市", u"保有量"]].set_index(u"城市")
+            )
             self.clusterStats = self.df.groupby(self.analysisType).agg({
                 u"保有量": ["mean", "median", "std"]
             }).reset_index()
 
             self.clusterStats.columns = ["clusting", "avgEV", "midEV", "stdEV"]
+        
+        elif self.indicator == "urban":
+            def calculateStats(group):
+                return pd.Series({
+                    "weighted_mean": np.average(group["Urban_Ratio"], weights=group["Shape_Area"]),
+                    "median": group['Urban_Ratio'].median(),
+                    "std": group['Urban_Ratio'].std(),
+                })
+            
+            self.df = self.clustingResult.dropna(subset=[self.analysisType]).set_index("name").join(
+                self.gdp.loc[self.gdp["Urban"] == "Urban", ["name", "Shape_Area", "Urban_Ratio"]].set_index("name")
+            ).fillna(0)
+            self.clusterStats = self.df.groupby(self.analysisType).apply(calculateStats).reset_index()
+
+            self.clusterStats.columns = ["clusting", "avgRatio", "midRatio", "stdRatio"]
+
         else:
             raise RuntimeError("Unrecognized indicator.")
 
@@ -153,10 +176,17 @@ class _AnalysisExecutorImpl(clustingAnalysis):
                 print(f"• Average GDP {data["avgGDP"]:.02f} (Stander Division: {data["stdGDP"]:.02f})")
                 print(f"• Average Per Capita GDP {data["avgPGDP"]:.02f}")
                 print(f"• Industrial Structue: Primary Industry {data["PPI"]:.02f}% | Secondary Industru {data["PSI"]:.02f}% | Tertiary Industry {data["PTI"]:.02f}%")
+            
             elif self.indicator == "ev":
                 print(f"\n=== EV stature of {cluster} ===")
                 print(f"• Average EV number {data["avgEV"]:.02f} (Stander Division: {data["stdEV"]:.02f})")
                 print(f"• Midean EV number {data["midEV"]:.02f}")
+            
+            elif self.indicator == "urban":
+                print(f"\n=== Urbanization stature of {cluster} ===")
+                print(f"• Average urbanization ratio {data["avgRatio"]:.02f} (Stander Division: {data["stdRatio"]:.02f})")
+                print(f"• Midean urbanization ratio {data["midRatio"]:.02f}")
+
             else:
                 raise RuntimeError("Unrecognized indicator.")
 
@@ -248,7 +278,7 @@ class _AnalysisExecutorImpl(clustingAnalysis):
         fig = plt.figure(figsize=FIG_SIZE)
         ax = fig.add_subplot()
 
-        data.plot.bar(ax=ax, color=["#BAD540", "#85A2D0", "#FFC339"])
+        data.plot.bar(ax=ax, color=BAR_COLORS) # type: ignore
 
         # for container in ax.containers:
         #     ax.bar_label(container, fmt="%.2f", label_type='edge')
@@ -341,9 +371,11 @@ class _AnalysisExecutorImpl(clustingAnalysis):
         return
     
 if __name__ == "__main__":
-    a = pd.read_csv("China_Acc_Results/Result/city_with_clusting.csv", encoding="utf-8")
-    gdp = pd.read_excel("China_Acc_Results/Result/city_gdponly.xlsx")
-    ev = pd.read_excel("China_Acc_Results/Result/China_2022_EV_ownership.xlsx")
+    a = pd.read_csv("China_Acc_Results\\Result\\city_with_clusting.csv", encoding="utf-8")
+    gdp = pd.read_excel("China_Acc_Results\\Result\\city_gdponly.xlsx")
+    ev = pd.read_excel("China_Acc_Results\\Result\\China_2022_EV_ownership.xlsx")
+    urban = pd.read_csv("China_Acc_Results\\Result\\city_urbanRatio.csv", encoding="utf-8")
+    # clustingAnalysis(a, gdp, path=r".\\paper\\figure").heat()
     # b = clustingAnalysis(a, gdp, path=r".\\paper\\figure").analysisEfficiency()
     # b.drawRadar()
     # b.showTime()
@@ -353,4 +385,6 @@ if __name__ == "__main__":
     # b.drawRadar((18,8))
     # b.drawClusting()
     # b.showTime()
-    clustingAnalysis(a, gdp, path=r".\\paper\\figure").heat()
+    b = clustingAnalysis(a, urban, indicator="urban").analysisAll()
+    b.analysis()
+    

@@ -50,6 +50,7 @@ def cohort(RESULT: pd.DataFrame, colName: str) -> None:
     plotSet()
     TITLE = {"M2SFCA_Gini": "Equity", "Relative_Accessibility":"Efficiency"}
     matrix = []
+    citylist = {}
     for i in range(2015, 2026):
         cohort = [0.0] * (i - 2015)
         # Only filter the rows that the relative accessibility is NA
@@ -58,6 +59,7 @@ def cohort(RESULT: pd.DataFrame, colName: str) -> None:
         if i > 2015:
             for j in range(2015, i):
                 data = data[data["Relative_Accessibility_{}".format(j)].isna()]
+                
         if data.shape[0] == 0:
             for j in range(i, 2026):
                 cohort.append(0)
@@ -65,6 +67,8 @@ def cohort(RESULT: pd.DataFrame, colName: str) -> None:
             for j in range(i, 2026):
                 subdata = data["{}_{}".format(colName, j)]
                 cohort.append(subdata.median())
+            for c in data["name"].to_list():
+                citylist[c] = [i, data.loc[data["name"] == c, "{}_{}".format(colName, i)].values[0]]
         matrix.append(cohort)
 
     # Convert to numpy and set 0 as NaN
@@ -89,6 +93,8 @@ def cohort(RESULT: pd.DataFrame, colName: str) -> None:
     )
     plt.legend()
     plt.show()
+
+    pd.DataFrame(citylist.values(), columns=["year", "gini"], index=list(citylist.keys())).to_excel("a.xlsx")
 
     return
 

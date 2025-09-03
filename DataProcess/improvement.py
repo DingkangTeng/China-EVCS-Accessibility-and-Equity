@@ -11,10 +11,12 @@ except:
 # Proportional distribution with different levels of improvement in accessibility from 2015 to 2025
 def improvement(RESULT: pd.DataFrame, colName: str, path: str = "") -> None:
     plotSet()
+    print(RESULT.iloc[112])
     RESULT = calSlop(RESULT, colName)
     RESULT = RESULT.loc[:, ["{}_2025-2015".format(colName)]]
     negativeData = RESULT[RESULT["{}_2025-2015".format(colName)] < 0]["{}_2025-2015".format(colName)]
     positiveData = RESULT[RESULT["{}_2025-2015".format(colName)] >= 0]["{}_2025-2015".format(colName)]
+    print(RESULT[RESULT["{}_2025-2015".format(colName)] >= 0])
     step = round((RESULT["{}_2025-2015".format(colName)].max() - RESULT["{}_2025-2015".format(colName)].min()) / 10, 2)
     xp = 0
     binsPositive = [xp]
@@ -124,6 +126,7 @@ if __name__ == "__main__":
     # Clean Gini Nan
     for y in range(2015, 2026):
         RESULT.loc[RESULT["Relative_Accessibility_{}".format(y)].isna(), "M2SFCA_Gini_{}".format(y)] = np.nan
-    improvement(RESULT.copy(), "Relative_Accessibility", r".\\paper\\figure")
-    improvement(RESULT.copy(), "M2SFCA_Gini", r".\\paper\\figure")
-    # improvement(RESULT.copy(), "M2SFCA_Gini")
+    
+    # improvement(RESULT.copy(), "Relative_Accessibility", r".\\paper\\figure")
+    # improvement(RESULT.copy(), "M2SFCA_Gini", r".\\paper\\figure")
+    improvement(RESULT.copy(), "M2SFCA_Gini")
