@@ -11,7 +11,7 @@ class calDensity:
     __slots__ = ["cities", "evcs", "boundaies", "lock", "maxThread"]
 
     def __init__(self, boundaries: gpd.GeoDataFrame, evcs: gpd.GeoDataFrame, maxThread: int = 1) -> None:
-        self.cities: list = boundaries["name"].unique().tolist()
+        self.cities = boundaries["name"].unique().tolist()
         # Exclude SAR
         for x in [u"台湾省", u"香港特别行政区", u"澳门特别行政区"]:
             self.cities.remove(x)
@@ -110,7 +110,7 @@ class calDensity:
         if src.crs is None:
             raise RuntimeError("Roads do not have correct crs.")
         if self.boundaies.crs != src.crs:
-                self.boundaies = self.boundaies.to_crs(src.crs)
+            self.boundaies = self.boundaies.to_crs(src.crs)
         src.close()
 
         futures = []
@@ -119,7 +119,7 @@ class calDensity:
         with ThreadPoolExecutor(max_workers=self.maxThread) as excutor:
             for city in self.cities:
                 for year in years:
-                    evcsGeo = self.evcs[(self.evcs["cityname"] == city) & (self.evcs["year"] == year)]["geometry"]
+                    evcsGeo = self.evcs[(self.evcs["cityname"] == city) & (self.evcs["year"] == year)].geometry
                     future = excutor.submit(self.calOneYearRoad, roadsPath, evcsGeo, buffer, Sr, city)
                     futures.append(future)
                     futuresDict[future] = (city, year)
@@ -137,7 +137,7 @@ class calDensity:
                         result.loc[city, year] = Dci
         
         if path != "":
-            result.to_excel(os.path.join(path, "Roads_Density2.xlsx"))
+            result.to_excel(os.path.join(path, "Roads_Density.xlsx"))
         
         return
                 
@@ -159,17 +159,16 @@ class calDensity:
 
         roads = roads.geometry
         Dc = roads.length.sum() / boundary.to_crs(epsg=4479).area.sum()
-        evcsGeo = evcsGeo.geometry.to_crs(epsg=4479) # Projection unit into meter
-        bufferResult = evcsGeo.geometry.buffer(buffer)
+        bufferResult = evcsGeo.geometry.to_crs(epsg=4479).buffer(buffer) # Projection unit into meter
 
         Dcir = 0.0
-        for buffer_geom in bufferResult:
-            clipped = roads.intersection(buffer_geom)
+        for bufferGeom in bufferResult:
+            clipped = roads.intersection(bufferGeom)
             clipped = clipped[~clipped.is_empty]
             if len(clipped) != 0:
                 Dcir += clipped.length.sum()
         
-        return Dc
+        return Dcir / evcsNum / Sr / Dc
 
 
 # Debug

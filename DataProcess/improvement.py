@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,12 +12,10 @@ except:
 # Proportional distribution with different levels of improvement in accessibility from 2015 to 2025
 def improvement(RESULT: pd.DataFrame, colName: str, path: str = "") -> None:
     plotSet()
-    print(RESULT.iloc[112])
     RESULT = calSlop(RESULT, colName)
     RESULT = RESULT.loc[:, ["{}_2025-2015".format(colName)]]
     negativeData = RESULT[RESULT["{}_2025-2015".format(colName)] < 0]["{}_2025-2015".format(colName)]
     positiveData = RESULT[RESULT["{}_2025-2015".format(colName)] >= 0]["{}_2025-2015".format(colName)]
-    print(RESULT[RESULT["{}_2025-2015".format(colName)] >= 0])
     step = round((RESULT["{}_2025-2015".format(colName)].max() - RESULT["{}_2025-2015".format(colName)].min()) / 10, 2)
     xp = 0
     binsPositive = [xp]
@@ -119,7 +118,6 @@ def improvement(RESULT: pd.DataFrame, colName: str, path: str = "") -> None:
     return
 
 if __name__ == "__main__":
-    import os
     RESULT = pd.read_csv(os.path.join(".", "China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
     RESULT = RESULT[RESULT["name"] != u"境界线"]
 

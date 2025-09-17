@@ -16,7 +16,8 @@ def boxPlot(
     ylabel: str = "",
     ylim: tuple[float, float] = (0.0, 0.0),
     xticklabel: Iterable = [],
-    path: str = ""
+    path: str = "",
+    **kwgs
     ) -> None:
     plotSet()
     resultCol = []
@@ -39,7 +40,8 @@ def boxPlot(
         medianprops = {"color": "white"},
         meanprops = {"color": "gray"},
         whiskerprops = {"color": "gray"},
-        capprops = {"color": "gray"}
+        capprops = {"color": "gray"},
+        **kwgs
     )
     
     if isinstance(colName, str):
@@ -77,9 +79,9 @@ def boxPlot(
 if __name__ == "__main__":
     # df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_population.xlsx")
     # df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_gdp.xlsx")
-    # df = pd.read_excel(r"China_Acc_Results\Result\Roads_Density.xlsx")
-    df = pd.read_excel(r"China_Acc_Results\Result\Sample_rate.xlsx")
+    df = pd.read_excel(r"China_Acc_Results\Result\Roads_Density.xlsx")
+    # df = pd.read_excel(r"China_Acc_Results\Result\Sample_rate.xlsx")
     colName = list(range(2015, 2026))
     # boxPlot(df, colName, "Sample rates", xticklabel=colName)
-    # boxPlot(df, colName, "Roads network density", xticklabel=colName)
-    boxPlot(df, list(range(2018, 2026)), "Sample rates(%)", (0, 100), xticklabel=list(range(2018, 2026)))
+    boxPlot(df, colName, "Roads network density", (0, 5), xticklabel=colName, showfliers=False)
+    # boxPlot(df, list(range(2018, 2026)), "Sample rates(%)", (0, 100), xticklabel=list(range(2018, 2026)))

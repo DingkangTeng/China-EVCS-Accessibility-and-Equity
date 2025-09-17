@@ -13,6 +13,7 @@ ECO_COL = [u"GDP(亿元)", u"人均GDP(元)", u"第一产业占比(%)", u"第二
 TITLE = {
     "M2SFCA_Gini": "Equity",
     "Relative_Accessibility": "Efficiency",
+    "M2SFCA_Accessibility": "Accessibility",
     u"人均GDP(元)": "GDP",
     u"保有量": "Holding of EVs",
     "tour": "Tourist City"
@@ -32,7 +33,8 @@ LABEL_SIZE = 24
 TICK_SIZE = int(LABEL_SIZE * 0.9)
 FIG_SIZE = (10,8)
 FIG_SIZE_H = (8, 10)
-BAR_COLORS = ["#BAD540", "#85A2D0", "#FFC339", ]
+FIG_SIZE_W = (20, 8)
+BAR_COLORS = ["#BAD540", "#85A2D0", "#FFC339", "#000000"]
 
 def plotSet() -> None:
     plt.style.use("seaborn-v0_8-whitegrid")
