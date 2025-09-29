@@ -8,9 +8,9 @@ from rasterio import mask
 from concurrent.futures import as_completed, ThreadPoolExecutor
 
 class calDensity:
-    __slots__ = ["cities", "evcs", "boundaies", "lock", "maxThread"]
+    __slots__ = ["cities", "cityname", "evcs", "boundaies", "lock", "maxThread"]
 
-    def __init__(self, boundaries: gpd.GeoDataFrame, evcs: gpd.GeoDataFrame, maxThread: int = 1) -> None:
+    def __init__(self, boundaries: gpd.GeoDataFrame, evcs: gpd.GeoDataFrame, level: str = "cityname", maxThread: int = 1) -> None:
         self.cities = boundaries["name"].unique().tolist()
         # Exclude SAR
         for x in [u"台湾省", u"香港特别行政区", u"澳门特别行政区"]:
@@ -19,6 +19,7 @@ class calDensity:
         self.boundaies = boundaries
         self.lock = threading.Lock()
         self.maxThread = maxThread
+        self.cityname = level
 
         return
 
@@ -45,9 +46,8 @@ class calDensity:
                         if self.evcs.crs != src.crs:
                             self.evcs = self.evcs.to_crs(src.crs)
                     # Process
-                    evcsGeo = self.evcs.loc[(self.evcs["cityname"] == city) & (self.evcs["year"] == year), ["geometry"]]
+                    evcsGeo = self.evcs.loc[(self.evcs[self.cityname] == city) & (self.evcs["year"] == year), ["geometry"]]
                     future = excutor.submit(self.calOneYearRaster, rasterPath, evcsGeo, city)
-                    # self.calOneYearRaster(os.path.join(rasterRoot, raster), evcsGeo, city)
                     futures.append(future)
                     futuresDict[future] = (city, year)
                     bar.update(1)
@@ -97,7 +97,7 @@ class calDensity:
             coords = np.column_stack((XCoords, YCoords))
             values = np.array([(val[0] - DPlow) / diff if val[0] != src.nodata else 0 for val in src.sample(coords)])
 
-        return np.average(values)
+        return np.nanmean(values)
     
     def calRoadsDensity(self, roadsPath: str | tuple[str, str], buffer: float, path: str = "") -> None:
         years = list(range(2015, 2026))
@@ -119,7 +119,7 @@ class calDensity:
         with ThreadPoolExecutor(max_workers=self.maxThread) as excutor:
             for city in self.cities:
                 for year in years:
-                    evcsGeo = self.evcs[(self.evcs["cityname"] == city) & (self.evcs["year"] == year)].geometry
+                    evcsGeo = self.evcs[(self.evcs[self.cityname] == city) & (self.evcs["year"] == year)].geometry
                     future = excutor.submit(self.calOneYearRoad, roadsPath, evcsGeo, buffer, Sr, city)
                     futures.append(future)
                     futuresDict[future] = (city, year)
@@ -173,10 +173,15 @@ class calDensity:
 
 # Debug
 if __name__ == "__main__":
-    boundarys = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="CNMap_City")
     evcs = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="Merge_Amap_15_25")
 
-    a = calDensity(boundarys, evcs, 32)
-    # a.calRasterDensity((r"C:\\0_PolyU\\cn_2015-2025_pop", "population"), r"China_Acc_Results\\Result")
-    # a.calRasterDensity((r"C:\\0_PolyU\\global_gdp", "gdp"), r"China_Acc_Results\\Result") # GDP
-    a.calRoadsDensity((r"C:\\0_PolyU\\roadsGraph\\CHN.gpkg", "edges"), 1000, r"China_Acc_Results\\Result")
+    boundarys = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="CNMap_City")
+    a = calDensity(boundarys, evcs, "cityname", 32)
+    a.calRasterDensity((r"C:\\0_PolyU\\cn_2015-2025_pop", "population"), r"China_Acc_Results\\Result\\")
+    a.calRasterDensity((r"C:\\0_PolyU\\global_gdp", "gdp"), r"China_Acc_Results\\Result\\") # GDP
+
+    # boundarys = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="CNMap_Province")
+    # a = calDensity(boundarys, evcs, "pname", 32)
+    # a.calRasterDensity((r"C:\\0_PolyU\\cn_2015-2025_pop", "population"), r"China_Acc_Results\\Result\\provinceLevel")
+    # a.calRasterDensity((r"C:\\0_PolyU\\global_gdp", "gdp"), r"China_Acc_Results\\Result\\provinceLevel") # GDP
+    # a.calRoadsDensity((r"C:\\0_PolyU\\roadsGraph\\CHN.gpkg", "edges"), 1000, r"China_Acc_Results\\Result\\provinceLevel")

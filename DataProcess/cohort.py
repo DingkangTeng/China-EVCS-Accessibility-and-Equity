@@ -4,54 +4,55 @@ import numpy as np
 import pandas as pd
 
 try:
-    from .setting import plotSet, FIG_SIZE, TITLE
+    from .setting import plotSet, FIG_SIZE, BAR_COLORS
 except:
-    from setting import plotSet, FIG_SIZE, TITLE
+    from setting import plotSet, FIG_SIZE, BAR_COLORS
 
-def cohort(RESULT: pd.DataFrame, colName: str) -> None:
-    plotSet()
-    matrix = []
-    for i in range(2015, 2026):
-        cohort = [0.0] * (i - 2015)
-        # Only filter the rows that the relative accessibility is NA
-        data = RESULT[~RESULT["Relative_Accessibility_{}".format(i)].isna()]
-        # And the former years are NA
-        if i > 2015:
-            for j in range(2015, i):
-                data = data[data["Relative_Accessibility_{}".format(j)].isna()]
-        if data.shape[0] == 0:
-            for j in range(i, 2026):
-                cohort.append(0)
-        else:
-            for j in range(i, 2026):
-                subdata = data["{}_{}".format(colName, j)]
-                cohort.append(subdata.median())
-        matrix.append(cohort)
+# def cohort(RESULT: pd.DataFrame, colName: str) -> None:
+#     plotSet()
+#     matrix = []
+#     for i in range(2015, 2026):
+#         cohort = [0.0] * (i - 2015)
+#         # Only filter the rows that the relative accessibility is NA
+#         data = RESULT[~RESULT["Relative_Accessibility_{}".format(i)].isna()]
+#         # And the former years are NA
+#         if i > 2015:
+#             for j in range(2015, i):
+#                 data = data[data["Relative_Accessibility_{}".format(j)].isna()]
+#         if data.shape[0] == 0:
+#             for j in range(i, 2026):
+#                 cohort.append(0)
+#         else:
+#             for j in range(i, 2026):
+#                 subdata = data["{}_{}".format(colName, j)]
+#                 cohort.append(subdata.median())
+#         matrix.append(cohort)
 
-    # Convert to numpy and set 0 as NaN
-    matrix = np.array(matrix, dtype=float)
-    matrix[matrix == 0] = np.nan
+#     # Convert to numpy and set 0 as NaN
+#     matrix = np.array(matrix, dtype=float)
+#     matrix[matrix == 0] = np.nan
 
-    plt.figure(figsize=FIG_SIZE)
-    sns.heatmap(
-        matrix,
-        cmap="Reds",
-        linewidths=0.5
-    ) 
+#     plt.figure(figsize=FIG_SIZE.D)
+#     sns.heatmap(
+#         matrix,
+#         cmap="Reds",
+#         linewidths=0.5
+#     ) 
 
-    plt.title("Pop.-Based {}".format(TITLE[colName]))
+#     plt.title("Pop.-Based {}".format(TITLE[colName]))
 
-    plt.show()
-    plt.close()
+#     plt.show()
+#     plt.close()
 
-    return
+#     return
 
-def cohort(RESULT: pd.DataFrame, colName: str) -> None:
+def cohort(RESULT: pd.DataFrame, colName: str, colorGroup: list[int]) -> None:
     plotSet()
     TITLE = {"M2SFCA_Gini": "Equity", "Relative_Accessibility":"Efficiency"}
+    years = list(range(2015, 2026))
     matrix = []
     citylist = {}
-    for i in range(2015, 2026):
+    for i in years:
         cohort = [0.0] * (i - 2015)
         # Only filter the rows that the relative accessibility is NA
         data = RESULT[~RESULT["Relative_Accessibility_{}".format(i)].isna()]
@@ -76,33 +77,34 @@ def cohort(RESULT: pd.DataFrame, colName: str) -> None:
     matrix[matrix == 0] = np.nan
     xticks = range(2015, 2026)
 
-    plt.figure(figsize=FIG_SIZE)
+    plt.figure(figsize=FIG_SIZE.D)
+    colors = []
+    for x in colorGroup:
+        colors.extend(BAR_COLORS[x])
 
+    skip = 0
     for i, group in enumerate(matrix):
         if np.isnan(group).all():
+            skip += 1
             continue
-        plt.plot(xticks, group, label="First deploied on {}".format(xticks[i]))
+        plt.plot(xticks, group, label="First deploied on {}".format(xticks[i]), color=colors[i - skip])
 
-    plt.xlabel(
-        "Year",
-        fontweight="bold",
-    )
+    plt.xlabel("Year")
+    plt.xticks(years, years) # type: ignore
     plt.ylabel(
-        "Median of {} Index".format(TITLE.get(colName)),
-        fontweight="bold",
+        "Median of {} Index".format(TITLE.get(colName))
     )
     plt.legend()
+
+    plt.tight_layout()
     plt.show()
 
-    pd.DataFrame(citylist.values(), columns=["year", "gini"], index=list(citylist.keys())).to_excel("a.xlsx")
+    # pd.DataFrame(citylist.values(), columns=["year", "gini"], index=list(citylist.keys())).to_excel("a.xlsx")
 
     return
 
 if __name__ == "__main__":
     import os
     RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
-    RESULT = RESULT[RESULT["name"] != u"境界线"]
-    for y in range(2015, 2026):
-        RESULT.loc[RESULT["Relative_Accessibility_{}".format(y)].isna(), "M2SFCA_Gini_{}".format(y)] = np.nan
     # cohort(RESULT, "Relative_Accessibility")
-    cohort(RESULT, "M2SFCA_Gini")
+    cohort(RESULT, "M2SFCA_Gini", [-1])

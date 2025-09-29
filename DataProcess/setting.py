@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+from dataclasses import dataclass
 
 # Constant
 INDEX = "name"
@@ -12,10 +13,10 @@ NO_GDP = {u"中农发山丹马场", u"三沙市"}
 ECO_COL = [u"GDP(亿元)", u"人均GDP(元)", u"第一产业占比(%)", u"第二产业占比(%)", u"第三产业占比(%)"]
 TITLE = {
     "M2SFCA_Gini": "Equity",
-    "Relative_Accessibility": "Efficiency",
+    "Relative_Accessibility": "Opt-Acc",
     "M2SFCA_Accessibility": "Accessibility",
     u"人均GDP(元)": "GDP",
-    u"保有量": "Holding of EVs",
+    u"保有量": "EVs ownership",
     "tour": "Tourist City"
 }
 # https://www.gov.cn/zhengce/zhengceku/2020-12/30/content_5575120.htm
@@ -31,15 +32,31 @@ TOUR_CITY_LIST = [
 # Fig setting
 LABEL_SIZE = 24
 TICK_SIZE = int(LABEL_SIZE * 0.9)
-FIG_SIZE = (10,8)
-FIG_SIZE_H = (8, 10)
-FIG_SIZE_W = (20, 8)
-BAR_COLORS = ["#BAD540", "#85A2D0", "#FFC339", "#000000"]
+@dataclass
+class __FIG_SIZE:
+    D: tuple[int, int] = (10,9)     # Default
+    R: tuple[int, int] = (9, 10)    # Rotate
+    H: tuple[int, int] = (10, 18)   # Higher
+    W: tuple[int, int] = (20, 9)    # Wider
+    H3W: tuple[int, int] = (20, 27)  # Higher * 3 and wider
+    N: tuple[int, int] = (5, 9)     # Narrower
+    S: tuple[int, int] = (10, 3)    # Shorter
+FIG_SIZE = __FIG_SIZE()
+BAR_COLORS = [
+    ["#436C85", "#B73F42", "#DE9960", "#82B29B", "#EEE6CB"],
+    # ["#E76727", "#A8C3D1", "#A57E74", "#E9B693", "#EED7C6"],
+    ["#DE476A", "#76AEA6", "#D79E8F", "#E5D2C4", "#F0E0D3"],
+    # ["#C22525", "#3F3A39", "#6F5E56", "#C3AB8C", "#E1D6C7"],
+    ["#7D5A8A", "#DE7294", "#90BBAA", "#E6D2C2", "#F0E0D3"],
+    ["#165188", "#BFCF61", "#9FCBC3", "#BFD3BC", "#DDDAB4"],
+    ["#DE476A", "#76AEA6", "#D79E8F", "#7D5A8A", "#DE7294", "#90BBAA", "#165188", "#BFCF61", "#F0E0D3", "#000000"],
+]
+# ["#BAD540", "#85A2D0", "#FFC339", "#000000"]
 
 def plotSet() -> None:
     plt.style.use("seaborn-v0_8-whitegrid")
     # Font setting
-    plt.rcParams["font.sans-serif"] = "Times New Roman"
+    plt.rcParams["font.sans-serif"] = "Sans Serif Collection"
     plt.rcParams["font.size"] = TICK_SIZE
     plt.rcParams["xtick.labelsize"] = TICK_SIZE
     plt.rcParams["ytick.labelsize"] = TICK_SIZE
@@ -51,6 +68,7 @@ def plotSet() -> None:
     plt.rcParams["legend.framealpha"] = 1.0
     # axes setting
     plt.rcParams["axes.formatter.use_mathtext"] = False
+    plt.rcParams["axes.labelweight"] = "bold"
     # save setting
     plt.rcParams["savefig.dpi"] = 300
 

@@ -11,13 +11,14 @@ except:
     from setting import ECO_COL, plotSet, FIG_SIZE, TITLE, BAR_COLORS
 
 class clustingAnalysis:
-    __slots__ = ["clustingResult", "gdp", "path", "_indicator", "_analysisType", "_analysisValue"]
+    __slots__ = ["clustingResult", "gdp", "path", "_indicator", "_analysisType", "_analysisValue", "_colorGroup"]
 
-    def __init__(self, clustingResult: pd.DataFrame, gdp: pd.DataFrame, indicator: str = "gdp", path: str = "") -> None:
+    def __init__(self, clustingResult: pd.DataFrame, gdp: pd.DataFrame, indicator: str = "gdp", colorGroup: int = 0, path: str = "") -> None:
         self.clustingResult = clustingResult
         self.gdp = gdp
         self.path = path
         self._indicator = indicator
+        self._colorGroup = colorGroup
         self._analysisType: str
         self._analysisValue: str
         plotSet()
@@ -30,6 +31,7 @@ class clustingAnalysis:
     def analysisEquity(self) -> "_AnalysisExecutorImpl":
         self._analysisType =  "clusting_equity"
         self._analysisValue = "M2SFCA_Gini"
+        
         return _AnalysisExecutorImpl(self)
 
     def analysisEfficiency(self)  -> "_AnalysisExecutorImpl":
@@ -82,7 +84,7 @@ class clustingAnalysis:
                 )
             matrix.append(col)
 
-        plt.figure(figsize=FIG_SIZE)
+        plt.figure(figsize=FIG_SIZE.D)
         ax = sns.heatmap(
             matrix,
             yticklabels=[' '.join(x.split(' ')[0:2]) for x in equity],
@@ -92,16 +94,10 @@ class clustingAnalysis:
         )
         cbar = ax.collections[0].colorbar
         if cbar is not None:
-            cbar.set_label("Number of Cities", fontweight="bold")
+            cbar.set_label("Number of Cities")
         
-        ax.set_ylabel(
-            "Equlity Clustering",
-            fontweight="bold"
-        )
-        ax.set_xlabel(
-            "Efficiency Clustering",
-            fontweight="bold"
-        )
+        ax.set_ylabel("Equlity Clustering")
+        ax.set_xlabel("Efficiency Clustering")
         plt.xticks(rotation=0)
         plt.tight_layout()
         if self.path == "":
@@ -113,16 +109,17 @@ class clustingAnalysis:
         return
 
 class _AnalysisExecutorImpl(clustingAnalysis):
-    __slots__ = ["clusterStats", "df", "indicator", "analysisType", "analysisValue"]
+    __slots__ = ["clusterStats", "df", "indicator", "analysisType", "analysisValue", "colorGroup"]
 
     def __init__(self, builder: clustingAnalysis) -> None:
-        super().__init__(builder.clustingResult, builder.gdp, builder._indicator, builder.path)
+        super().__init__(builder.clustingResult, builder.gdp, builder._indicator, builder._colorGroup, builder.path)
         self.analysisType = builder._analysisType
         self.analysisValue = builder._analysisValue
         self.indicator = self._indicator
+        self.colorGroup = self._colorGroup
         if self.indicator == "gdp":
             self.df = self.clustingResult.dropna(subset=[self.analysisType]).set_index("name").join(
-                self.gdp[[u"区县"] + ECO_COL].set_index(u"区县")
+                self.gdp
             )
             self.clusterStats = self.df.groupby(self.analysisType).agg({
                 u"GDP(亿元)": ["mean", "median", "std"],
@@ -192,7 +189,7 @@ class _AnalysisExecutorImpl(clustingAnalysis):
 
         return
     
-    def drawRadar(self, figsize: tuple[int, int] = FIG_SIZE) -> None:
+    def drawRadar(self, figsize: tuple[int, int] = FIG_SIZE.D) -> None:
         fig = plt.figure(figsize=figsize)
         ax = fig.add_subplot(polar=True)
         ax.grid(True)
@@ -275,25 +272,36 @@ class _AnalysisExecutorImpl(clustingAnalysis):
         data = data.reindex(range(2015,2023), fill_value=0)
         data.fillna(0, inplace=True)
 
-        fig = plt.figure(figsize=FIG_SIZE)
+        # Cal cumulate
+        data = data.cumsum().round(4)
+        cols = data.columns.to_numpy()
+        cols.sort()
+        # Expand x and y data to plot steps
+        xFill = []
+        yFill = {x: [] for x in cols}
+        for i, year in enumerate(data.index):
+            xFill.append(year)
+            if i < len(data.index) - 1:
+                xFill.append(data.index[i+1])
+            for col in cols:
+                yFill[col].append(data[col].iloc[i])
+                # Add end point if not final year
+                if i < len(data.index) - 1:
+                    yFill[col].append(data[col].iloc[i])
+
+        fig = plt.figure(figsize=FIG_SIZE.N)
         ax = fig.add_subplot()
 
-        data.plot.bar(ax=ax, color=BAR_COLORS) # type: ignore
+        for i, col in enumerate(cols):
+            # Using step="post" plot filling area
+            ax.fill_between(xFill, 0, yFill[col], alpha=0.5, label=col, step="post", color=BAR_COLORS[self.colorGroup][i])
+            # Plot steps cruve
+            ax.step(data.index, data[col], where="post", color=BAR_COLORS[self.colorGroup][i], linewidth=1.5)
 
-        # for container in ax.containers:
-        #     ax.bar_label(container, fmt="%.2f", label_type='edge')
-
-        plt.xlabel(
-            "Year",
-            fontweight="bold",
-        )
-        plt.ylabel(
-            "Ratio of Cities First Deploy\nCharging Facilities (%)",
-            fontweight="bold",
-        )
-        plt.xticks(rotation = 0)
-        plt.legend()
-        plt.grid(axis='y', alpha=0.3)
+        plt.xlabel("Year")
+        plt.ylabel("Ratio of Cities First Deploy Charging Facilities (%)")
+        plt.xticks(data.index, data.index, rotation = 90) # type: ignore
+        # plt.legend()
         plt.tight_layout()
         if self.path != "":
             plt.savefig(os.path.join(self.path, "{}_timeDistribution.jpg".format(self.analysisType)), dpi=300)
@@ -313,23 +321,25 @@ class _AnalysisExecutorImpl(clustingAnalysis):
         data = self.df.copy()
         data = data[["{}_{}".format(self.analysisValue, y) for y in years] + [self.analysisType]]
         
-        colors = ["#E24A33", "#348ABD", "#988ED5"]
-        # plt.figure(figsize=FIG_SIZE)
-        
-        for i, clusterId in enumerate(data[self.analysisType].unique().tolist()):
+        colors = BAR_COLORS[self.colorGroup]
+        # plt.figure(figsize=FIG_SIZE.D)
+
+        clustering: list = data[self.analysisType].unique().tolist()
+        clustering.sort()
+        for i, clusterId in enumerate(clustering):
             clusterData = data.loc[data[self.analysisType] == clusterId].drop(columns=self.analysisType)
-            plt.figure(figsize=FIG_SIZE)
+            plt.figure(figsize=FIG_SIZE.D)
             
             plt.plot(
                 xPositions,
                 np.nanmedian(clusterData, axis=0),
-                label="Median of {}".format(clusterId.lower()),
+                label="Median of {}".format(clusterId),
                 color=colors[i]
             )
             plt.plot(
                 xPositions,
                 np.nanmax(clusterData, axis=0),
-                label="Max boundary of {}".format(clusterId.lower()),
+                label="Max of {}".format(clusterId),
                 linestyle="--",
                 color=colors[i],
                 alpha=0.7
@@ -337,20 +347,16 @@ class _AnalysisExecutorImpl(clustingAnalysis):
             plt.plot(
                 xPositions,
                 np.nanmin(clusterData, axis=0),
-                label="Minial boundary of {}".format(clusterId.lower()),
+                label="Minial of {}".format(clusterId),
                 linestyle="dashdot",
                 color=colors[i],
                 alpha=0.7
             )
             plt.fill_between(xPositions, np.nanmin(clusterData, axis=0), np.nanmax(clusterData, axis=0), alpha=0.1, color=colors[i])
 
-            plt.xlabel(
-                "Year",
-                fontweight="bold",
-            )
+            plt.xlabel("Year")
             plt.ylabel(
-                "{} Index".format(TITLE.get(self.analysisValue)),
-                fontweight="bold",
+                "{} Index".format(TITLE.get(self.analysisValue))
             )
             plt.yticks([x / 10 for x in range(0, 11, 2)], [str(x / 10) for x in range(0, 11, 2)])
             plt.gca().set_xticklabels([None] + [str(x) for x in range(2015, 2027, 2)] + [None]) # type: ignore
@@ -372,19 +378,17 @@ class _AnalysisExecutorImpl(clustingAnalysis):
     
 if __name__ == "__main__":
     a = pd.read_csv("China_Acc_Results\\Result\\city_with_clusting.csv", encoding="utf-8")
-    gdp = pd.read_excel("China_Acc_Results\\Result\\city_gdponly.xlsx")
+    gdp = pd.read_excel("China_Acc_Results\\Result\\city_gdponly.xlsx").set_index(u"区县")
     ev = pd.read_excel("China_Acc_Results\\Result\\China_2022_EV_ownership.xlsx")
-    urban = pd.read_csv("China_Acc_Results\\Result\\city_urbanRatio.csv", encoding="utf-8")
-    # clustingAnalysis(a, gdp, path=r".\\paper\\figure").heat()
-    # b = clustingAnalysis(a, gdp, path=r".\\paper\\figure").analysisEfficiency()
+    b = clustingAnalysis(a, gdp, path=r".\\paper\\figure\\fig2").analysisEfficiency()
     # b.drawRadar()
     # b.showTime()
-    # b.drawClusting()
-    # b = clustingAnalysis(a, gdp, path=r".\\paper\\figure").analysisAll()
+    b.drawClusting()
+    # b = clustingAnalysis(a, gdp, colorGroup=1, path=r".\\paper\\figure\\fig3").analysisEquity()
     # b.analysis()
     # b.drawRadar((18,8))
     # b.drawClusting()
     # b.showTime()
-    b = clustingAnalysis(a, urban, indicator="urban").analysisAll()
-    b.analysis()
+    # b = clustingAnalysis(a, urban, indicator="urban").analysisAll()
+    # b.analysis()
     

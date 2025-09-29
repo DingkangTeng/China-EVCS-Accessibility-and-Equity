@@ -59,7 +59,7 @@ def improvement(RESULT: pd.DataFrame, colName: str, path: str = "") -> None:
     boxTicks = list(boxTicks)
     boxTicks.sort()
 
-    plt.figure(figsize=FIG_SIZE)
+    plt.figure(figsize=FIG_SIZE.D)
     gs = GridSpec(1, 2, width_ratios=[10, 1], wspace=0.05)
     ax = plt.subplot(gs[0])
     ax2 = plt.subplot(gs[1])
@@ -77,13 +77,9 @@ def improvement(RESULT: pd.DataFrame, colName: str, path: str = "") -> None:
 
     ax.set_yticks(xPos, labels, rotation=45)
     ax.set_ylabel(
-        "{} Indeics Slops".format(TITLE.get(colName)),
-        fontweight="bold"
+        "{} Indeics Slops".format(TITLE.get(colName))
     )
-    ax.set_xlabel(
-        "Percentage (%)",
-        fontweight="bold"
-    )
+    ax.set_xlabel("Percentage (%)")
 
     ax.legend(["Change Curve", "Percentage"], loc="best")
 
