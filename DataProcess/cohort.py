@@ -46,12 +46,11 @@ except:
 
 #     return
 
-def cohort(RESULT: pd.DataFrame, colName: str, colorGroup: list[int]) -> None:
+def cohort(RESULT: pd.DataFrame, colName: str, colorGroup: list[int], savePath: str = "") -> None:
     plotSet()
     TITLE = {"M2SFCA_Gini": "Equity", "Relative_Accessibility":"Efficiency"}
     years = list(range(2015, 2026))
     matrix = []
-    citylist = {}
     for i in years:
         cohort = [0.0] * (i - 2015)
         # Only filter the rows that the relative accessibility is NA
@@ -68,8 +67,7 @@ def cohort(RESULT: pd.DataFrame, colName: str, colorGroup: list[int]) -> None:
             for j in range(i, 2026):
                 subdata = data["{}_{}".format(colName, j)]
                 cohort.append(subdata.median())
-            for c in data["name"].to_list():
-                citylist[c] = [i, data.loc[data["name"] == c, "{}_{}".format(colName, i)].values[0]]
+                
         matrix.append(cohort)
 
     # Convert to numpy and set 0 as NaN
@@ -87,7 +85,7 @@ def cohort(RESULT: pd.DataFrame, colName: str, colorGroup: list[int]) -> None:
         if np.isnan(group).all():
             skip += 1
             continue
-        plt.plot(xticks, group, label="First deploied on {}".format(xticks[i]), color=colors[i - skip])
+        plt.plot(xticks, group, label="{}".format(xticks[i]), color=colors[i - skip])
 
     plt.xlabel("Year")
     plt.xticks(years, years) # type: ignore
@@ -97,9 +95,12 @@ def cohort(RESULT: pd.DataFrame, colName: str, colorGroup: list[int]) -> None:
     plt.legend()
 
     plt.tight_layout()
-    plt.show()
+    if savePath == "":
+        plt.show()
+    else:
+        plt.savefig(os.path.join(savePath, "chorts.jpg"), dpi=300)
 
-    # pd.DataFrame(citylist.values(), columns=["year", "gini"], index=list(citylist.keys())).to_excel("a.xlsx")
+    plt.close()
 
     return
 
@@ -107,4 +108,4 @@ if __name__ == "__main__":
     import os
     RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
     # cohort(RESULT, "Relative_Accessibility")
-    cohort(RESULT, "M2SFCA_Gini", [-1])
+    cohort(RESULT, "M2SFCA_Gini", [-1], r".\\paper\\figure\\fig3")

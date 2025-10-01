@@ -5,11 +5,12 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import seaborn as sns
 from matplotlib.axes import Axes
+from scipy.stats import skew
 
 try:
-    from .setting import plotSet, FIG_SIZE, BAR_COLORS, TITLE
+    from .setting import plotSet, FIG_SIZE, BAR_COLORS, TITLE, TICK_SIZE
 except:
-    from setting import plotSet, FIG_SIZE, BAR_COLORS, TITLE
+    from setting import plotSet, FIG_SIZE, BAR_COLORS, TITLE, TICK_SIZE
 
 DIFF_NAME = {
     "M2SFCA_Gini": "Diffenrence in equity",
@@ -198,11 +199,13 @@ class populationAnalysis:
             else:
                 ax2 = None
 
+            statsInfo = {x: {} for x in range(len(meltDf))}
             for j, df in enumerate(meltDf):
-                subdf = df.loc[df[classifyName] == i]
+                subdf: pd.DataFrame = df.loc[df[classifyName] == i]
                 ax = ax1 if j == 0 else ax2
                 if ax is None:
                     continue
+
                 sns.violinplot(
                     data=subdf,
                     ax = ax,
@@ -217,6 +220,20 @@ class populationAnalysis:
                         "color": remainColor[j],
                     }
                 )
+
+                # Cal skew and variance in each year
+                yearsSorted = sorted(subdf["Year"].unique())
+                for idx, year in enumerate(yearsSorted):
+                    data = subdf[(subdf["Year"] == year) & (subdf["Order"] == colNames[j])]["Value"]
+                    data = data.dropna()
+                    
+                    if len(data) > 0:
+                        skews = skew(data)
+                        variance = data.var()
+                        statsInfo[j][idx] = {
+                            "SK": skews,
+                            "SD": variance
+                        }
 
                 dif = (df["Value"].max() - df["Value"].min()) / 10
                 if dif < 0.1:
@@ -256,6 +273,32 @@ class populationAnalysis:
             ax1.set_xticklabels(years)
             ax1.axhline(y=0, color='red', linestyle='--', linewidth=2, label='y=0')
 
+            # Add skew and variance info on vilon plot
+            for j, df in enumerate(meltDf):
+                ax = ax1 if j == 0 else ax2
+                if ax is None:
+                    continue
+                    
+                _, yMax = ax.get_ylim()
+                textYPosition = 2 if yMax == 10 else 100
+                
+                for x in range(len(years)):
+                    if x in statsInfo[j]:
+                        stats = statsInfo[j][x]
+                        
+                        # 在对应年份位置添加文本
+                        ax.text(
+                            x, textYPosition, 
+                            f"SK:{stats["SK"]:.0f}\nSD:{stats["SD"]:.0f}", 
+                            ha="center", va="bottom", 
+                            # fontsize=int(TICK_SIZE * 0.9),
+                            color="black",
+                            # bbox=dict(boxstyle="round,pad=0.3", 
+                            #         facecolor='white', 
+                            #         alpha=0.8,
+                            #         edgecolor=palette[colNames[j]])
+                        )
+
             plt.tight_layout()
             if savePath is None and axs is None:
                 plt.show()
@@ -287,4 +330,4 @@ if __name__ == "__main__":
     b = populationAnalysis(pd.DataFrame(), os.path.join("China_Acc_Results", "Result"), x, n)
     b.difference("M2SFCA_Accessibility", "age", adj=1, ax=f.axs[1:])
 
-    f.save("")
+    f.save(os.path.join(".", "paper", "figure", "fig4", "fig4.jpg"))

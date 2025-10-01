@@ -148,8 +148,8 @@ if __name__ == "__main__":
     a.boxPlot("Relative_Accessibility", (0.5, 0.8), savePath=r".\\paper\\figure\\fig2")
     
     b = combineAnalysis(RESULT, (gdp, u"人均GDP(元)"))
-    # b.boxPlot("M2SFCA_Gini", (0.5, 1), colorGroup = 1, savePath=r".\\paper\\figure\\fig3")
-    # b.boxPlot("Relative_Accessibility", (0.5, 0.8), savePath=r".\\paper\\figure\\fig2")
+    b.boxPlot("M2SFCA_Gini", (0.5, 1), colorGroup = 1, savePath=r".\\paper\\figure\\fig3")
+    b.boxPlot("Relative_Accessibility", (0.5, 0.8), savePath=r".\\paper\\figure\\fig2")
     
     # # # Spearman's rank correlation coefficient
     # # spearman(a, b)

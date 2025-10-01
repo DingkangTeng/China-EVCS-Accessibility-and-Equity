@@ -334,7 +334,8 @@ class _AnalysisExecutorImpl(clustingAnalysis):
                 xPositions,
                 np.nanmedian(clusterData, axis=0),
                 label="Median of {}".format(clusterId),
-                color=colors[i]
+                color=colors[i],
+                alpha=0.8
             )
             plt.plot(
                 xPositions,
@@ -342,7 +343,7 @@ class _AnalysisExecutorImpl(clustingAnalysis):
                 label="Max of {}".format(clusterId),
                 linestyle="--",
                 color=colors[i],
-                alpha=0.7
+                alpha=0.8
             )
             plt.plot(
                 xPositions,
@@ -350,7 +351,7 @@ class _AnalysisExecutorImpl(clustingAnalysis):
                 label="Minial of {}".format(clusterId),
                 linestyle="dashdot",
                 color=colors[i],
-                alpha=0.7
+                alpha=0.8
             )
             plt.fill_between(xPositions, np.nanmin(clusterData, axis=0), np.nanmax(clusterData, axis=0), alpha=0.1, color=colors[i])
 
@@ -360,7 +361,7 @@ class _AnalysisExecutorImpl(clustingAnalysis):
             )
             plt.yticks([x / 10 for x in range(0, 11, 2)], [str(x / 10) for x in range(0, 11, 2)])
             plt.gca().set_xticklabels([None] + [str(x) for x in range(2015, 2027, 2)] + [None]) # type: ignore
-            plt.legend(loc="lower left")
+            # plt.legend(loc="lower left")
             plt.tight_layout()
 
             if self.path != "":
@@ -368,11 +369,6 @@ class _AnalysisExecutorImpl(clustingAnalysis):
             else:
                 plt.show()
             plt.close()
-
-        # plt.yticks([x / 10 for x in range(0, 11, 2)], [str(x / 10) for x in range(0, 11, 2)])
-        # plt.gca().set_xticklabels([None] + [str(x) for x in range(2015, 2027, 2)] + [None]) # type: ignore
-        # plt.legend()
-        # plt.show()
 
         return
     
@@ -384,10 +380,10 @@ if __name__ == "__main__":
     # b.drawRadar()
     # b.showTime()
     b.drawClusting()
-    # b = clustingAnalysis(a, gdp, colorGroup=1, path=r".\\paper\\figure\\fig3").analysisEquity()
+    b = clustingAnalysis(a, gdp, colorGroup=1, path=r".\\paper\\figure\\fig3").analysisEquity()
     # b.analysis()
     # b.drawRadar((18,8))
-    # b.drawClusting()
+    b.drawClusting()
     # b.showTime()
     # b = clustingAnalysis(a, urban, indicator="urban").analysisAll()
     # b.analysis()

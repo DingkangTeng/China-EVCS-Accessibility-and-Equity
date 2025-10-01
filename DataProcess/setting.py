@@ -53,14 +53,16 @@ BAR_COLORS = [
 ]
 # ["#BAD540", "#85A2D0", "#FFC339", "#000000"]
 
-def plotSet() -> None:
+def plotSet(scal1: float | int = 1, scal2: float | int = 1) -> None:
+    labelSize = int(LABEL_SIZE * scal1)
+    tickSize = int(TICK_SIZE * scal2)
     plt.style.use("seaborn-v0_8-whitegrid")
     # Font setting
     plt.rcParams["font.sans-serif"] = "Sans Serif Collection"
-    plt.rcParams["font.size"] = TICK_SIZE
-    plt.rcParams["xtick.labelsize"] = TICK_SIZE
-    plt.rcParams["ytick.labelsize"] = TICK_SIZE
-    plt.rcParams["axes.labelsize"] = LABEL_SIZE
+    plt.rcParams["font.size"] = tickSize
+    plt.rcParams["xtick.labelsize"] = tickSize
+    plt.rcParams["ytick.labelsize"] = tickSize
+    plt.rcParams["axes.labelsize"] = labelSize
     # legend format
     plt.rcParams["legend.facecolor"] = "white"
     plt.rcParams["legend.edgecolor"] = "lightgray"

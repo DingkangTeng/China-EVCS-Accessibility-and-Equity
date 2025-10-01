@@ -91,10 +91,13 @@ def drawClusting(RESULT: pd.DataFrame, BASE_MAP: gpd.GeoDataFrame, reativeCluste
 
     return
 
-def stackplot(df: pd.DataFrame, name: str, subname: str, path: str = "") -> None:
-    plotSet()
+def stackplot(df: pd.DataFrame, name: str, subname: str, figsize: str = "D", rotation: int = 0, path: str = "") -> None:
+    if figsize == "N":
+        plotSet(1 , 0.99)
+    else:
+        plotSet()
     LEGEND = {
-        "Number of chargers (millions)": "Chargers Number",
+        "Number of chargers (millions)": "Chargers",
         "Growth rate of chargers (%)": "Growth rate"
     }
     ROW = {
@@ -105,13 +108,14 @@ def stackplot(df: pd.DataFrame, name: str, subname: str, path: str = "") -> None
         "Number of chargers (millions)": BAR_COLORS[0],
         "Growth rate of chargers (%)": BAR_COLORS[1]
     }
-    fig = plt.figure(figsize=FIG_SIZE.D)
+    fig = plt.figure(figsize=getattr(FIG_SIZE, figsize))
     ax = plt.subplot()
     years = list(range(2016, 2026))
     df = df.drop(columns=["region"])
 
     df.loc[df["name"] == ROW.get(name, name), years].T.plot(
         ax=ax,
+        marker='.',
         color=COLOR.get(name, "teal"),
         legend=False
     )
@@ -122,6 +126,7 @@ def stackplot(df: pd.DataFrame, name: str, subname: str, path: str = "") -> None
         ax2 = ax.twinx()
         df.loc[df["name"] == ROW.get(subname, subname), years].T.plot(
             ax=ax2,
+            marker="^",
             color=COLOR.get(subname, "teal"),
             legend=False
         )
@@ -141,7 +146,7 @@ def stackplot(df: pd.DataFrame, name: str, subname: str, path: str = "") -> None
         ax.legend(LEGEND.get(name, name))
         
     ax.set_xlabel("Year")
-    ax.set_xticks(range(0,10), years) # type: ignore
+    ax.set_xticks(range(0,10), years, rotation=rotation) # type: ignore
 
     plt.tight_layout()
     if path == "":
@@ -170,4 +175,4 @@ if __name__ == "__main__":
     # draw152535(RESULT, BASE_MAP)
 
     provinceLevelData = pd.read_excel(os.path.join("China_Acc_Results", "Result", "provinceLevel", "China_EVCS.xlsx"))
-    stackplot(provinceLevelData, "Number of chargers (millions)", "Growth rate of chargers (%)", os.path.join(".", "paper", "figure", "fig1"))
+    stackplot(provinceLevelData, "Number of chargers (millions)", "Growth rate of chargers (%)", "N", 90, os.path.join(".", "paper", "figure", "fig1")) #
