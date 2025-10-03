@@ -102,11 +102,9 @@ class populationAnalysis:
         if isinstance(colName, tuple):
             baseClass2, baseDf2, comparClass2, comparDf2 = self.__split(self.classify, self.dfList)
             result2 = self.__compressdf(baseClass2, baseDf2, comparClass2, comparDf2, resultCol2, self.classifyName, (savePath, colName2))
-            result = self.plotVilon((result1, result2), colName, self.classifyName, scal, ax, adj, savePath)
+            self.plotVilon((result1, result2), colName, self.classifyName, scal, ax, adj, savePath)
         else:
-            result = self.plotVilon(result1, colName, self.classifyName, scal, ax, adj, savePath)
-
-        # result.to_csv("{}.csv".format(colName), encoding="utf-8", index=False)
+            self.plotVilon(result1, colName, self.classifyName, scal, ax, adj, savePath)
 
         return
     
@@ -188,7 +186,6 @@ class populationAnalysis:
         
         for n, i in enumerate(classify):
             palette = {x: y for x,y in zip(colNames, BAR_COLORS[n + adj])}
-            remainColor = BAR_COLORS[n + adj][len(meltDf):]
             if axs is None:
                 fig, ax1 = plt.subplots(figsize=FIG_SIZE.W)
             else:
@@ -215,21 +212,35 @@ class populationAnalysis:
                     hue_order=colNames,
                     palette=palette,
                     alpha=0.8,
-                    inner="box",
-                    inner_kws={
-                        "color": remainColor[j],
-                    }
+                    inner=None
+                )
+
+                boxwidth = 0.08
+                positions = [i + 0.5 - 2 * boxwidth for i in range(len(years))]
+                
+                sns.boxplot(
+                    data=subdf,
+                    ax = ax,
+                    x="Year", y="Value",
+                    width=boxwidth,
+                    color="#FFFFFF",
+                    showfliers=False,
+                    boxprops={"edgecolor": "#000000"},
+                    whiskerprops={"color": "#000000"},
+                    capprops={"color": "#000000"},
+                    medianprops={"color": "#000000"},
+                    positions=positions
                 )
 
                 # Cal skew and variance in each year
                 yearsSorted = sorted(subdf["Year"].unique())
                 for idx, year in enumerate(yearsSorted):
-                    data = subdf[(subdf["Year"] == year) & (subdf["Order"] == colNames[j])]["Value"]
+                    data: pd.DataFrame = subdf[(subdf["Year"] == year) & (subdf["Order"] == colNames[j])]["Value"]
                     data = data.dropna()
                     
                     if len(data) > 0:
                         skews = skew(data)
-                        variance = data.var()
+                        variance = data.std()
                         statsInfo[j][idx] = {
                             "SK": skews,
                             "SD": variance
@@ -271,7 +282,7 @@ class populationAnalysis:
             lines1, labels1 = ax1.get_legend_handles_labels()
             ax1.legend(lines1, ["{} {}".format(i, LEG_NAME.get(x, x)) for x in colNames], loc="lower left")
             ax1.set_xticklabels(years)
-            ax1.axhline(y=0, color='red', linestyle='--', linewidth=2, label='y=0')
+            ax1.axhline(y=0, color="#FF0000", linestyle="--", linewidth=2)
 
             # Add skew and variance info on vilon plot
             for j, df in enumerate(meltDf):
@@ -289,7 +300,7 @@ class populationAnalysis:
                         # 在对应年份位置添加文本
                         ax.text(
                             x, textYPosition, 
-                            f"SK:{stats["SK"]:.0f}\nSD:{stats["SD"]:.0f}", 
+                            f"SK:{stats["SK"]:.2f}\nSD:{stats["SD"]:.2f}", 
                             ha="center", va="bottom", 
                             # fontsize=int(TICK_SIZE * 0.9),
                             color="black",
