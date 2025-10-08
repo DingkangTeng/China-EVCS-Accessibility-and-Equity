@@ -177,10 +177,6 @@ class densityAnalysis:
 if __name__ == "__main__":
     import numpy as np
     RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
-    RESULT = RESULT[RESULT["name"] != u"境界线"]
-    # Clean Gini Nan
-    for y in range(2015, 2026):
-        RESULT.loc[RESULT["Relative_Accessibility_{}".format(y)].isna(), "M2SFCA_Gini_{}".format(y)] = np.nan
 
     evcs = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="Merge_Amap_15_25")
     boundarys = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="CNMap_City")

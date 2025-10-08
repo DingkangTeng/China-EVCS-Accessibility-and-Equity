@@ -66,7 +66,14 @@ class combineAnalysis:
             else:
                 return data.quantile(0.25), data.quantile(0.50) # left skewed
 
-    def boxPlot(self, colName: str, ylim: tuple[float, float] = (0.0, 0.0), colorGroup: int = 0, savePath: str = "") -> None:
+    def boxPlot(
+        self,
+        colName: str,
+        ylim: tuple[float, float] = (0.0, 0.0),
+        figsize: str = "D", legLoc: str = "upper right",
+        colorGroup: int = 0,
+        savePath: str = ""
+    ) -> None:
         years = list(str(x) for x in range(2015,2026))
         palette = {x: y for x,y in zip(self.classify, BAR_COLORS[colorGroup])}
 
@@ -77,9 +84,9 @@ class combineAnalysis:
             value_name=colName
         )
         
-        plt.figure(figsize=FIG_SIZE.D)
+        plt.figure(figsize=getattr(FIG_SIZE, figsize))
         ax = sns.boxplot(
-            data=dfMelted, 
+            data=dfMelted,
             x="Year", 
             y=colName, 
             hue=self.value,  # Class color based on different group
@@ -92,7 +99,7 @@ class combineAnalysis:
             capprops = {"color": "gray"}
         )
 
-        ax.set_xticklabels(years)
+        ax.set_xticklabels(["" if int(x) % 2 ==0 else x for x in years])
         ax.set_ylabel("{} Indeics".format(TITLE.get(colName)))
 
         if ylim != (0.0, 0.0):
@@ -100,7 +107,7 @@ class combineAnalysis:
         else:
             ax.set_yticks([0.2, 0.4, 0.6, 0.8, 1])
 
-        plt.legend()
+        plt.legend(loc=legLoc)
         plt.tight_layout()
 
         if savePath == "":
@@ -144,12 +151,12 @@ if __name__ == "__main__":
     # tour = pd.read_csv("China_Acc_Results\\Result\\city_tour.csv", encoding="utf-8").set_index("name")
     
     a = combineAnalysis(RESULT, (ev, u"保有量"))
-    a.boxPlot("M2SFCA_Gini", (0.5, 1), colorGroup = 1, savePath=r".\\paper\\figure\\fig3")
-    a.boxPlot("Relative_Accessibility", (0.5, 0.8), savePath=r".\\paper\\figure\\fig2")
+    a.boxPlot("M2SFCA_Gini", (0.5, 1), legLoc="lower left", colorGroup = 1, savePath=r".\\paper\\figure\\fig3")
+    a.boxPlot("Relative_Accessibility", (0.5, 0.8), figsize="SM", savePath=r".\\paper\\figure\\fig2")
     
     b = combineAnalysis(RESULT, (gdp, u"人均GDP(元)"))
-    b.boxPlot("M2SFCA_Gini", (0.5, 1), colorGroup = 1, savePath=r".\\paper\\figure\\fig3")
-    b.boxPlot("Relative_Accessibility", (0.5, 0.8), savePath=r".\\paper\\figure\\fig2")
+    b.boxPlot("M2SFCA_Gini", (0.5, 1), legLoc="lower left", colorGroup = 1, savePath=r".\\paper\\figure\\fig3")
+    b.boxPlot("Relative_Accessibility", (0.5, 0.8), figsize="SM", savePath=r".\\paper\\figure\\fig2")
     
     # # # Spearman's rank correlation coefficient
     # # spearman(a, b)

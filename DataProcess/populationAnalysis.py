@@ -64,14 +64,20 @@ class populationAnalysis:
             # Skip children
             if classify == "children":
                 continue
+
+            colName = "{} - {}".format(classify.capitalize(), baseClass.capitalize())
             subResult = pd.DataFrame(columns=resultCol + ["name"])
             for col in resultCol:
                 subResult[col] = df[col] - baseDf[col]
             subResult["name"] = df["name"]
-            subResult[classifyName] = "{} - {}".format(classify.capitalize(), baseClass.capitalize())
+            subResult[classifyName] = colName
 
             if savePath is not None and savePath[0] is not None:
-                self.plotHist(subResult[resultCol[-3]], "{} - {}".format(classify.capitalize(), baseClass.capitalize()), savePath=savePath)
+                self.plotHist(
+                    subResult[resultCol[-3]],
+                    colName,
+                    savePath=savePath
+                )
 
             result.append(subResult)
 
@@ -214,6 +220,8 @@ class populationAnalysis:
                     alpha=0.8,
                     inner=None
                 )
+                ax.set_facecolor(BAR_COLORS[n + adj][-j])
+                ax.patch.set_alpha(0.05)
 
                 boxwidth = 0.08
                 positions = [i + 0.5 - 2 * boxwidth for i in range(len(years))]
@@ -280,7 +288,12 @@ class populationAnalysis:
             
             ax1.yaxis.set_major_formatter(formatter)
             lines1, labels1 = ax1.get_legend_handles_labels()
-            ax1.legend(lines1, ["{} {}".format(i, LEG_NAME.get(x, x)) for x in colNames], loc="lower left")
+            # Legend Name
+            ax1.legend(
+                lines1,
+                ["{} {} Gap ({})".format(scal.capitalize(), LEG_NAME.get(x, x), i) for x in colNames],
+                loc="lower left"
+            )
             ax1.set_xticklabels(years)
             ax1.axhline(y=0, color="#FF0000", linestyle="--", linewidth=2)
 
@@ -297,7 +310,7 @@ class populationAnalysis:
                     if x in statsInfo[j]:
                         stats = statsInfo[j][x]
                         
-                        # 在对应年份位置添加文本
+                        # Add text of skew and variance in specific year
                         ax.text(
                             x, textYPosition, 
                             f"SK:{stats["SK"]:.2f}\nSD:{stats["SD"]:.2f}", 

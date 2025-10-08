@@ -1,4 +1,4 @@
-import seaborn as sns
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -88,7 +88,7 @@ def cohort(RESULT: pd.DataFrame, colName: str, colorGroup: list[int], savePath: 
         plt.plot(xticks, group, label="{}".format(xticks[i]), color=colors[i - skip])
 
     plt.xlabel("Year")
-    plt.xticks(years, years) # type: ignore
+    plt.xticks(years, ["" if int(x) % 2 == 0 else x for x in years]) # type: ignore
     plt.ylabel(
         "Median of {} Index".format(TITLE.get(colName))
     )

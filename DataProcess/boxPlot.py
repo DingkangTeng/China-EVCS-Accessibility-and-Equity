@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
+from matplotlib.ticker import MultipleLocator
 
 try:
     from .setting import plotSet, FIG_SIZE, TITLE, BAR_COLORS
@@ -64,7 +65,8 @@ def boxPlot(
 
     if axs is None:
         if xticklabel == []:
-            plot.set_xticklabels(years)
+            # plot.set_xticks(range(1, len(years) + 1, 2))
+            plot.set_xticklabels(["" if int(x) % 2 ==0 else x for x in years])
         else:
             plot.set_xticklabels(xticklabel)
         
@@ -81,21 +83,21 @@ def boxPlot(
 
 # Debug
 if __name__ == "__main__":
-    RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
-    boxPlot(RESULT.copy(), "Relative_Accessibility", path=r".\\paper\\figure\\fig2")
+    # RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
+    # boxPlot(RESULT.copy(), "Relative_Accessibility", ylim=(0.5, 0.8), figsize="SM", path=r".\\paper\\figure\\fig2")
 
-    # from multiFigs import multiFigs
-    # f = multiFigs(1, 3, figsize="D", sharex=True, sharey=False)
+    from multiFigs import multiFigs
+    f = multiFigs(1, 3, figsize="HH", sharex=True, sharey=False)
 
-    # colName = list(range(2015, 2026))
-    # df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_population.xlsx")
-    # boxPlot(df, colName, f.axs[0], "Pop. Coverage", (0, 0.5), xticklabel=colName, figsize="S", color=0) # , path=r"paper\\figure\\fig1"
-    # df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_gdp.xlsx")
-    # boxPlot(df, colName, f.axs[1], "GDP Coverage", (0, 0.5), xticklabel=colName, figsize="S", color=1) # , path=r"paper\\figure\\fig1"
-    # df = pd.read_excel(r"China_Acc_Results\Result\Roads_Density.xlsx")
-    # boxPlot(df, colName, f.axs[2], "Roads Density", (0, 16), xticklabel=colName, figsize="S", color=2) # , path=r"paper\\figure\\fig1"
-    # # RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
-    # # boxPlot(RESULT.copy(), "Relative_Accessibility", ylim=(0.4, 0.9))
+    colName = list(range(2015, 2026))
+    df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_population.xlsx")
+    boxPlot(df, colName, f.axs[0], "Pop. Coverage", (0, 0.5), xticklabel=colName, figsize="S", color=0) # , path=r"paper\\figure\\fig1"
+    df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_gdp.xlsx")
+    boxPlot(df, colName, f.axs[1], "GDP Coverage", (0, 0.5), xticklabel=colName, figsize="S", color=1) # , path=r"paper\\figure\\fig1"
+    df = pd.read_excel(r"China_Acc_Results\Result\Roads_Density_highway.xlsx")
+    boxPlot(df, colName, f.axs[2], "Highway Density", (0, 16), xticklabel=colName, figsize="S", color=2) # , path=r"paper\\figure\\fig1"
+    # RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
+    # boxPlot(RESULT.copy(), "Relative_Accessibility", ylim=(0.4, 0.9))
 
-    # f.globalXlabel("Year", [-1])
-    # f.save(r"paper\\figure\\fig1\\basic.jpg")
+    f.globalXlabel("Year", [-1])
+    f.save(r"paper\\figure\\fig1\\basic.jpg")

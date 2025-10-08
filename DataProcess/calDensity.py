@@ -177,11 +177,15 @@ if __name__ == "__main__":
 
     boundarys = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="CNMap_City")
     a = calDensity(boundarys, evcs, "cityname", 32)
-    a.calRasterDensity((r"C:\\0_PolyU\\cn_2015-2025_pop", "population"), r"China_Acc_Results\\Result\\")
-    a.calRasterDensity((r"C:\\0_PolyU\\global_gdp", "gdp"), r"China_Acc_Results\\Result\\") # GDP
+    # a.calRasterDensity((r"C:\\0_PolyU\\cn_2015-2025_pop", "population"), r"China_Acc_Results\\Result\\")
+    # a.calRasterDensity((r"C:\\0_PolyU\\global_gdp", "gdp"), r"China_Acc_Results\\Result\\") # GDP
+    # a.calRoadsDensity((r"C:\\0_PolyU\\roadsGraph\\CHN.gpkg", "edges"), 1000, r"China_Acc_Results\\Result\\")
+    a.calRoadsDensity(r"C:\\0_PolyU\\CHN_highwayonly.shp", 1000, r"China_Acc_Results\\Result\\")
 
     # boundarys = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="CNMap_Province")
     # a = calDensity(boundarys, evcs, "pname", 32)
     # a.calRasterDensity((r"C:\\0_PolyU\\cn_2015-2025_pop", "population"), r"China_Acc_Results\\Result\\provinceLevel")
     # a.calRasterDensity((r"C:\\0_PolyU\\global_gdp", "gdp"), r"China_Acc_Results\\Result\\provinceLevel") # GDP
     # a.calRoadsDensity((r"C:\\0_PolyU\\roadsGraph\\CHN.gpkg", "edges"), 1000, r"China_Acc_Results\\Result\\provinceLevel")
+
+    

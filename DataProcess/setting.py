@@ -16,7 +16,7 @@ TITLE = {
     "Relative_Accessibility": "Opt-Acc",
     "M2SFCA_Accessibility": "Accessibility",
     u"人均GDP(元)": "GDP",
-    u"保有量": "EVs ownership",
+    u"保有量": "EVs",
     "tour": "Tourist City"
 }
 # https://www.gov.cn/zhengce/zhengceku/2020-12/30/content_5575120.htm
@@ -35,8 +35,10 @@ TICK_SIZE = int(LABEL_SIZE * 0.9)
 @dataclass
 class __FIG_SIZE:
     D: tuple[int, int] = (10,9)     # Default
+    SM: tuple[float, int] = (10 * 2/3,6)     # Smaller
     R: tuple[int, int] = (9, 10)    # Rotate
     H: tuple[int, int] = (10, 18)   # Higher
+    HH: tuple[int, float] = (10, 13.5)   # Half Higher
     W: tuple[int, int] = (20, 9)    # Wider
     H3W: tuple[int, int] = (20, 27)  # Higher * 3 and wider
     N: tuple[int, int] = (5, 9)     # Narrower

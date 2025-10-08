@@ -311,7 +311,7 @@ class _AnalysisExecutorImpl(clustingAnalysis):
 
         return
     
-    def drawClusting(self) -> None:
+    def drawClusting(self, figsize: str = "D") -> None:
         if self.analysisValue == "":
             print("Please specifice a sub clusting type.")
             return
@@ -322,13 +322,12 @@ class _AnalysisExecutorImpl(clustingAnalysis):
         data = data[["{}_{}".format(self.analysisValue, y) for y in years] + [self.analysisType]]
         
         colors = BAR_COLORS[self.colorGroup]
-        # plt.figure(figsize=FIG_SIZE.D)
 
         clustering: list = data[self.analysisType].unique().tolist()
         clustering.sort()
         for i, clusterId in enumerate(clustering):
             clusterData = data.loc[data[self.analysisType] == clusterId].drop(columns=self.analysisType)
-            plt.figure(figsize=FIG_SIZE.D)
+            plt.figure(figsize=getattr(FIG_SIZE, figsize))
             
             plt.plot(
                 xPositions,
@@ -354,16 +353,16 @@ class _AnalysisExecutorImpl(clustingAnalysis):
                 alpha=0.8
             )
             plt.fill_between(xPositions, np.nanmin(clusterData, axis=0), np.nanmax(clusterData, axis=0), alpha=0.1, color=colors[i])
-
+            
             plt.xlabel("Year")
+            plt.gca().set_xticklabels([None] + [str(x) for x in range(2015, 2027, 2)] + [None]) # type: ignore
             plt.ylabel(
                 "{} Index".format(TITLE.get(self.analysisValue))
             )
             plt.yticks([x / 10 for x in range(0, 11, 2)], [str(x / 10) for x in range(0, 11, 2)])
-            plt.gca().set_xticklabels([None] + [str(x) for x in range(2015, 2027, 2)] + [None]) # type: ignore
             # plt.legend(loc="lower left")
-            plt.tight_layout()
 
+            plt.tight_layout()
             if self.path != "":
                 plt.savefig(os.path.join(self.path, "{}_{}.jpg".format(self.analysisType, clusterId)), dpi=300)
             else:
@@ -379,11 +378,11 @@ if __name__ == "__main__":
     b = clustingAnalysis(a, gdp, path=r".\\paper\\figure\\fig2").analysisEfficiency()
     # b.drawRadar()
     # b.showTime()
-    b.drawClusting()
+    b.drawClusting(figsize="SM")
     b = clustingAnalysis(a, gdp, colorGroup=1, path=r".\\paper\\figure\\fig3").analysisEquity()
     # b.analysis()
     # b.drawRadar((18,8))
-    b.drawClusting()
+    b.drawClusting(figsize="SM")
     # b.showTime()
     # b = clustingAnalysis(a, urban, indicator="urban").analysisAll()
     # b.analysis()
