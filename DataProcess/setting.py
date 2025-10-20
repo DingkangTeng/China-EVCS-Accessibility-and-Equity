@@ -35,8 +35,10 @@ TICK_SIZE = int(LABEL_SIZE * 0.9)
 @dataclass
 class __FIG_SIZE:
     D: tuple[int, int] = (10,9)     # Default
-    SM: tuple[float, int] = (10 * 2/3,6)     # Smaller
     R: tuple[int, int] = (9, 10)    # Rotate
+    SM: tuple[float, int] = (10 * 2/3,6)     # Smaller
+    SD: tuple[float, int] = (10 * 2/3,9)     # Smaller but default high
+    SHH: tuple[float, float] = (10 * 2/3, 13.5)     # Smaller but half higher
     H: tuple[int, int] = (10, 18)   # Higher
     HH: tuple[int, float] = (10, 13.5)   # Half Higher
     W: tuple[int, int] = (20, 9)    # Wider

@@ -46,7 +46,7 @@ except:
 
 #     return
 
-def cohort(RESULT: pd.DataFrame, colName: str, colorGroup: list[int], savePath: str = "") -> None:
+def cohort(RESULT: pd.DataFrame, colName: str, savePath: str = "") -> None:
     plotSet()
     TITLE = {"M2SFCA_Gini": "Equity", "Relative_Accessibility":"Efficiency"}
     years = list(range(2015, 2026))
@@ -76,23 +76,21 @@ def cohort(RESULT: pd.DataFrame, colName: str, colorGroup: list[int], savePath: 
     xticks = range(2015, 2026)
 
     plt.figure(figsize=FIG_SIZE.D)
-    colors = []
-    for x in colorGroup:
-        colors.extend(BAR_COLORS[x])
 
     skip = 0
+    line = ["-", "-."]
     for i, group in enumerate(matrix):
         if np.isnan(group).all():
             skip += 1
             continue
-        plt.plot(xticks, group, label="{}".format(xticks[i]), color=colors[i - skip])
+        plt.plot(xticks, group, linestyle=line[(i-skip)%2], label="{}".format(xticks[i]), color=BAR_COLORS[0][(i - skip)//2])
 
     plt.xlabel("Year")
     plt.xticks(years, ["" if int(x) % 2 == 0 else x for x in years]) # type: ignore
     plt.ylabel(
         "Median of {} Index".format(TITLE.get(colName))
     )
-    plt.legend()
+    # plt.legend()
 
     plt.tight_layout()
     if savePath == "":
@@ -106,6 +104,6 @@ def cohort(RESULT: pd.DataFrame, colName: str, colorGroup: list[int], savePath: 
 
 if __name__ == "__main__":
     import os
-    RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
+    RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_optAcc.csv"), encoding="utf-8")
     # cohort(RESULT, "Relative_Accessibility")
-    cohort(RESULT, "M2SFCA_Gini", [-1], r".\\paper\\figure\\fig3")
+    cohort(RESULT, "M2SFCA_Gini", r".\\paper\\figure\\fig3")

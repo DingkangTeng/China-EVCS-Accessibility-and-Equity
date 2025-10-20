@@ -13,3 +13,4 @@ Baidu*.csv
 *.code-workspace
 __pycache__
 /Data/中国EV数量（city level）
+*copy*

@@ -49,7 +49,6 @@ def boxPlot(
         boxprops = {"color": "gray", "facecolor":BAR_COLORS[colorGroup][color]},
         flierprops = {"marker":'.', "markerfacecolor":"gray", "markeredgecolor": "none"},
         medianprops = {"color": "white"},
-        meanprops = {"color": "gray"},
         whiskerprops = {"color": "gray"},
         capprops = {"color": "gray"},
         **kwgs
@@ -88,14 +87,15 @@ if __name__ == "__main__":
 
     from multiFigs import multiFigs
     f = multiFigs(1, 3, figsize="HH", sharex=True, sharey=False)
-
+    meanprops = {"markerfacecolor":"lightgreen"}
     colName = list(range(2015, 2026))
+
     df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_population.xlsx")
-    boxPlot(df, colName, f.axs[0], "Pop. Coverage", (0, 0.5), xticklabel=colName, figsize="S", color=0) # , path=r"paper\\figure\\fig1"
+    boxPlot(df, colName, f.axs[0], "Pop. Coverage", (0, 0.5), xticklabel=colName, figsize="S", color=0, meanprops=meanprops) # , path=r"paper\\figure\\fig1"
     df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_gdp.xlsx")
-    boxPlot(df, colName, f.axs[1], "GDP Coverage", (0, 0.5), xticklabel=colName, figsize="S", color=1) # , path=r"paper\\figure\\fig1"
+    boxPlot(df, colName, f.axs[1], "GDP Coverage", (0, 0.5), xticklabel=colName, figsize="S", color=1, meanprops=meanprops) # , path=r"paper\\figure\\fig1"
     df = pd.read_excel(r"China_Acc_Results\Result\Roads_Density_highway.xlsx")
-    boxPlot(df, colName, f.axs[2], "Highway Density", (0, 16), xticklabel=colName, figsize="S", color=2) # , path=r"paper\\figure\\fig1"
+    boxPlot(df, colName, f.axs[2], "Highway Density", (0, 16), xticklabel=colName, figsize="S", color=2, meanprops=meanprops) # , path=r"paper\\figure\\fig1"
     # RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
     # boxPlot(RESULT.copy(), "Relative_Accessibility", ylim=(0.4, 0.9))
 

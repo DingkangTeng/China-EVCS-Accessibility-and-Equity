@@ -311,7 +311,7 @@ class _AnalysisExecutorImpl(clustingAnalysis):
 
         return
     
-    def drawClusting(self, figsize: str = "D") -> None:
+    def drawClusting(self, figsize: str = "HH") -> None:
         if self.analysisValue == "":
             print("Please specifice a sub clusting type.")
             return
@@ -320,23 +320,25 @@ class _AnalysisExecutorImpl(clustingAnalysis):
         xPositions = np.arange(len(years))
         data = self.df.copy()
         data = data[["{}_{}".format(self.analysisValue, y) for y in years] + [self.analysisType]]
-        
-        colors = BAR_COLORS[self.colorGroup]
 
         clustering: list = data[self.analysisType].unique().tolist()
         clustering.sort()
+
+        colors = BAR_COLORS[self.colorGroup]
+        from multiFigs import multiFigs
+        fig = multiFigs(1, len(clustering), figsize=figsize, sharex=True)
+        axs = fig.axs
         for i, clusterId in enumerate(clustering):
             clusterData = data.loc[data[self.analysisType] == clusterId].drop(columns=self.analysisType)
-            plt.figure(figsize=getattr(FIG_SIZE, figsize))
             
-            plt.plot(
+            axs[i].plot(
                 xPositions,
                 np.nanmedian(clusterData, axis=0),
                 label="Median of {}".format(clusterId),
                 color=colors[i],
                 alpha=0.8
             )
-            plt.plot(
+            axs[i].plot(
                 xPositions,
                 np.nanmax(clusterData, axis=0),
                 label="Max of {}".format(clusterId),
@@ -344,7 +346,7 @@ class _AnalysisExecutorImpl(clustingAnalysis):
                 color=colors[i],
                 alpha=0.8
             )
-            plt.plot(
+            axs[i].plot(
                 xPositions,
                 np.nanmin(clusterData, axis=0),
                 label="Minial of {}".format(clusterId),
@@ -352,22 +354,26 @@ class _AnalysisExecutorImpl(clustingAnalysis):
                 color=colors[i],
                 alpha=0.8
             )
-            plt.fill_between(xPositions, np.nanmin(clusterData, axis=0), np.nanmax(clusterData, axis=0), alpha=0.1, color=colors[i])
-            
-            plt.xlabel("Year")
-            plt.gca().set_xticklabels([None] + [str(x) for x in range(2015, 2027, 2)] + [None]) # type: ignore
-            plt.ylabel(
-                "{} Index".format(TITLE.get(self.analysisValue))
+            axs[i].fill_between(
+                xPositions,
+                np.nanmin(clusterData, axis=0),
+                np.nanmax(clusterData, axis=0),
+                alpha=0.1, color=colors[i]
             )
-            plt.yticks([x / 10 for x in range(0, 11, 2)], [str(x / 10) for x in range(0, 11, 2)])
-            # plt.legend(loc="lower left")
+            
+            axs[i].set_xticklabels([None] + [str(x) for x in range(2015, 2027, 2)] + [None]) # type: ignore
+            # axs[i].set_ylabel(
+            #     "{} Index".format(TITLE.get(self.analysisValue))
+            # )
+            axs[i].set_yticks([x / 10 for x in range(0, 11, 2)], [str(x / 10) for x in range(0, 11, 2)])
+            axs[i].set_ylim(0.2, 1)
 
-            plt.tight_layout()
-            if self.path != "":
-                plt.savefig(os.path.join(self.path, "{}_{}.jpg".format(self.analysisType, clusterId)), dpi=300)
-            else:
-                plt.show()
-            plt.close()
+        fig.globalXlabel("Year", lens=[-1])
+        fig.supylabel("{} Index".format(TITLE.get(self.analysisValue)), x=0.05)
+        if self.path != "":
+            fig.save(os.path.join(self.path, "{}.jpg".format(self.analysisType)), dpi=300)
+        else:
+            plt.show()
 
         return
     
@@ -378,11 +384,11 @@ if __name__ == "__main__":
     b = clustingAnalysis(a, gdp, path=r".\\paper\\figure\\fig2").analysisEfficiency()
     # b.drawRadar()
     # b.showTime()
-    b.drawClusting(figsize="SM")
+    b.drawClusting(figsize="SHH")
     b = clustingAnalysis(a, gdp, colorGroup=1, path=r".\\paper\\figure\\fig3").analysisEquity()
     # b.analysis()
     # b.drawRadar((18,8))
-    b.drawClusting(figsize="SM")
+    b.drawClusting(figsize="SD")
     # b.showTime()
     # b = clustingAnalysis(a, urban, indicator="urban").analysisAll()
     # b.analysis()

@@ -42,9 +42,9 @@ def mergeData(PATH: str, sub: str = "Full") -> None:
         df.loc[df["Relative_Accessibility_{}".format(y)].isna(), "M2SFCA_Gini_{}".format(y)] = np.nan
 
     if sub == "Full":
-        savePath = "city_efficiency.csv"
+        savePath = "city_optAcc.csv"
     else:
-        savePath = "city_efficiency_{}.csv".format(sub)
+        savePath = "city_optAcc_{}.csv".format(sub)
     df.to_csv(os.path.join(PATH, "Result", savePath), encoding="utf-8")
 
     return
