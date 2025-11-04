@@ -136,15 +136,15 @@ def spearman(class1: combineAnalysis, class2: combineAnalysis) -> None:
 
     correlation, p = spearmanr(c['a_rank'], c['b_rank'])
 
-    print(f"斯皮尔曼相关系数 ρ: {correlation:.4f}")
-    print(f"P值: {p:.4f}")
+    print(f"Spearman correlation coefficient ρ: {correlation:.4f}")
+    print(f"P Value: {p:.4f}")
 
     return
 
 # Debug
 if __name__ == "__main__":
     import os
-    RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
+    RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_optAcc.csv"), encoding="utf-8")
 
     ev = pd.read_excel("China_Acc_Results\\Result\\China_2022_EV_ownership.xlsx").set_index(u"城市")
     gdp = pd.read_excel("China_Acc_Results\\Result\\city_gdponly.xlsx").set_index(u"区县")
@@ -174,9 +174,9 @@ if __name__ == "__main__":
     # # c.boxPlot("Relative_Accessibility")
 
     # dfList = []
-    # # x = ["city_efficiency_Female.csv", "city_efficiency_Male.csv"]
+    # # x = ["city_optAcc_Female.csv", "city_optAcc_Male.csv"]
     # # n = "Gender Group"
-    # x = ["city_efficiency_All_children.csv", "city_efficiency_All_middle.csv", "city_efficiency_All_old.csv", "city_efficiency_All_young.csv"]
+    # x = ["city_optAcc_All_children.csv", "city_optAcc_All_middle.csv", "city_optAcc_All_old.csv", "city_optAcc_All_young.csv"]
     # n = "Age Group"
     # for i in x:
     #     df = pd.read_csv(os.path.join("China_Acc_Results", "Result", i), encoding="utf-8")

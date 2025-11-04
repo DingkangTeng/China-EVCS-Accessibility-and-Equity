@@ -2,13 +2,11 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.graph_objects as go
-import seaborn as sns
 
 try:
-    from .setting import ECO_COL, plotSet, FIG_SIZE, TITLE, BAR_COLORS
+    from .setting import plotSet, TITLE, BAR_COLORS
 except:
-    from setting import ECO_COL, plotSet, FIG_SIZE, TITLE, BAR_COLORS
+    from setting import plotSet, TITLE, BAR_COLORS
 
 class clustingAnalysis:
     __slots__ = ["clustingResult", "gdp", "path", "_indicator", "_analysisType", "_analysisValue", "_colorGroup"]
@@ -34,80 +32,11 @@ class clustingAnalysis:
         
         return _AnalysisExecutorImpl(self)
 
-    def analysisEfficiency(self)  -> "_AnalysisExecutorImpl":
-        self._analysisType = "clusting_efficiency"
+    def analysisOptAcc(self)  -> "_AnalysisExecutorImpl":
+        self._analysisType = "clusting_optAcc"
         self._analysisValue = "Relative_Accessibility"
         return _AnalysisExecutorImpl(self)
     
-    def sankey(self, path: str = "") -> None:
-        df = self.clustingResult[["name", "clusting_equity", "clusting_efficiency"]].copy().dropna()
-        grouped = df.groupby(["clusting_equity", "clusting_efficiency"]).size().reset_index(name='count')
-
-        # Build node
-        labels = list(pd.unique(df["clusting_equity"])) + list(pd.unique(df["clusting_efficiency"]))
-        labelDict = {label: i for i, label in enumerate(labels)}
-
-        # Build sources and targets
-        sources = grouped["clusting_equity"].map(labelDict)
-        targets = grouped["clusting_efficiency"].map(labelDict)
-
-        fig = go.Figure(data=[go.Sankey(
-            node=dict(
-                pad=15,
-                thickness=20,
-                line=dict(color="black", width=0.5),
-                label=labels,
-            ),
-            link=dict(
-                source=sources,
-                target=targets,
-                value=grouped['count']
-            ))])
-
-        # fig.show()
-        fig.write_html(os.path.join(path, "sankey.html"))
-
-        return
-    
-    def heat(self) -> None:
-        df = self.clustingResult[["name", "clusting_equity", "clusting_efficiency"]].copy().dropna()
-        grouped = df.groupby(["clusting_equity", "clusting_efficiency"]).size().reset_index(name='count')
-        equity = grouped["clusting_equity"].unique().tolist()
-        efficiency = grouped["clusting_efficiency"].unique().tolist()
-        matrix = []
-
-        for i in equity:
-            col = []
-            for j in efficiency:
-                col.append(
-                    grouped.loc[(grouped["clusting_equity"] == i) & (grouped["clusting_efficiency"] == j), "count"].values[0] # type: ignore
-                )
-            matrix.append(col)
-
-        plt.figure(figsize=FIG_SIZE.D)
-        ax = sns.heatmap(
-            matrix,
-            yticklabels=[' '.join(x.split(' ')[0:2]) for x in equity],
-            xticklabels=[x.split(' ')[0] for x in efficiency],
-            cmap="Reds",
-            linewidths=0.5
-        )
-        cbar = ax.collections[0].colorbar
-        if cbar is not None:
-            cbar.set_label("Number of Cities")
-        
-        ax.set_ylabel("Equlity Clustering")
-        ax.set_xlabel("Efficiency Clustering")
-        plt.xticks(rotation=0)
-        plt.tight_layout()
-        if self.path == "":
-            plt.show()
-        else:
-            plt.savefig(os.path.join(self.path, "Efficiency and Equity Heat Map.jpg"))
-        plt.close()
-
-        return
-
 class _AnalysisExecutorImpl(clustingAnalysis):
     __slots__ = ["clusterStats", "df", "indicator", "analysisType", "analysisValue", "colorGroup"]
 
@@ -189,127 +118,127 @@ class _AnalysisExecutorImpl(clustingAnalysis):
 
         return
     
-    def drawRadar(self, figsize: tuple[int, int] = FIG_SIZE.D) -> None:
-        fig = plt.figure(figsize=figsize)
-        ax = fig.add_subplot(polar=True)
-        ax.grid(True)
-        plt.subplots_adjust(left=0.1, right=0.8, top=0.9, bottom=0.1)
+    # def drawRadar(self, figsize: tuple[int, int] = FIG_SIZE.D) -> None:
+    #     fig = plt.figure(figsize=figsize)
+    #     ax = fig.add_subplot(polar=True)
+    #     ax.grid(True)
+    #     plt.subplots_adjust(left=0.1, right=0.8, top=0.9, bottom=0.1)
 
-        if self.indicator == "gdp":
-            categories = ["PPI", "PSI", "PTI"]
-            xticklabels = ["Portion of\nprimary\nindustry", "Portion of\nsecondary industry", "Portion of\ntertiary industry"]
-        elif self.indicator == "ev":
-            categories = xticklabels = self.clusterStats["clusting"]
-        else:
-            raise RuntimeError("Unrecognized indicator.")
+    #     if self.indicator == "gdp":
+    #         categories = ["PPI", "PSI", "PTI"]
+    #         xticklabels = ["Portion of\nprimary\nindustry", "Portion of\nsecondary industry", "Portion of\ntertiary industry"]
+    #     elif self.indicator == "ev":
+    #         categories = xticklabels = self.clusterStats["clusting"]
+    #     else:
+    #         raise RuntimeError("Unrecognized indicator.")
         
-        angles = [n / float(len(categories)) * 2 * 3.14 for n in range(len(categories))]
-        angles += angles[:1]
+    #     angles = [n / float(len(categories)) * 2 * 3.14 for n in range(len(categories))]
+    #     angles += angles[:1]
         
-        if self.indicator == "gdp":
-            for cluster in self.clusterStats["clusting"]:
-                values = self.clusterStats.loc[self.clusterStats["clusting"]==cluster, categories].values.flatten().tolist()
-                values += values[:1]  # close graph
-                minVal = int(np.floor(min(values) / 10) * 10)
-                maxVal = int(np.ceil(max(values) / 10) * 10)
-                # Change values to log
-                values = np.log10(values)
-                percentages = [x for x in range(minVal, maxVal+1, 10)]
-                logTicks = np.log10(percentages)
-                percentLabels = [f"{tick:d}%" for tick in percentages]
-                ax.plot(angles, values, linewidth=2, label=cluster)
-                ax.fill(angles, values, alpha=0.1)
-                ax.set_yticks(logTicks)
-                ax.set_yticklabels(percentLabels)
-        elif self.indicator == "ev":
-            values = self.clusterStats[["avgEV"]].values.tolist()
-            values += values[:1]  # close graph
-            ax.plot(angles, values, linewidth=2, label="Average EV number")
-            ax.fill(angles, values, alpha=0.1)
+    #     if self.indicator == "gdp":
+    #         for cluster in self.clusterStats["clusting"]:
+    #             values = self.clusterStats.loc[self.clusterStats["clusting"]==cluster, categories].values.flatten().tolist()
+    #             values += values[:1]  # close graph
+    #             minVal = int(np.floor(min(values) / 10) * 10)
+    #             maxVal = int(np.ceil(max(values) / 10) * 10)
+    #             # Change values to log
+    #             values = np.log10(values)
+    #             percentages = [x for x in range(minVal, maxVal+1, 10)]
+    #             logTicks = np.log10(percentages)
+    #             percentLabels = [f"{tick:d}%" for tick in percentages]
+    #             ax.plot(angles, values, linewidth=2, label=cluster)
+    #             ax.fill(angles, values, alpha=0.1)
+    #             ax.set_yticks(logTicks)
+    #             ax.set_yticklabels(percentLabels)
+    #     elif self.indicator == "ev":
+    #         values = self.clusterStats[["avgEV"]].values.tolist()
+    #         values += values[:1]  # close graph
+    #         ax.plot(angles, values, linewidth=2, label="Average EV number")
+    #         ax.fill(angles, values, alpha=0.1)
 
-        ax.set_xticks(angles[:-1])
-        ax.set_xticklabels(
-            xticklabels,
-            ha='center',
-            va='center'
-        )
-        # Adjust label position
-        for label, angle in zip(ax.get_xticklabels(), angles[:-1]):
-            x, y = label.get_position()
-            label.set_position((x, y-0.15))
-        plt.legend(
-            loc="lower right",
-            bbox_to_anchor=(0, 0)
-        )
+    #     ax.set_xticks(angles[:-1])
+    #     ax.set_xticklabels(
+    #         xticklabels,
+    #         ha='center',
+    #         va='center'
+    #     )
+    #     # Adjust label position
+    #     for label, angle in zip(ax.get_xticklabels(), angles[:-1]):
+    #         x, y = label.get_position()
+    #         label.set_position((x, y-0.15))
+    #     plt.legend(
+    #         loc="lower right",
+    #         bbox_to_anchor=(0, 0)
+    #     )
         
-        plt.tight_layout()
-        if self.path != "":
-            plt.savefig(os.path.join(self.path, "{}_{}_radar.jpg".format(self.indicator, self.analysisType)), dpi=300)
-        else:
-            plt.show()
-        plt.close()
+    #     plt.tight_layout()
+    #     if self.path != "":
+    #         plt.savefig(os.path.join(self.path, "{}_{}_radar.jpg".format(self.indicator, self.analysisType)), dpi=300)
+    #     else:
+    #         plt.show()
+    #     plt.close()
 
-        return
+    #     return
     
-    def showTime(self) -> None:
-        data = self.df.copy()
-        data["earlistYear"] = 2025
-        for y in range(2015, 2025):
-            col = "Relative_Accessibility_{}".format(y) # Using Relative_Accessibility to determin the first deployment time
-            data.loc[(~data[col].isna()) & (data["earlistYear"] > y), ["earlistYear"]] = y
+    # def showTime(self) -> None:
+    #     data = self.df.copy()
+    #     data["earlistYear"] = 2025
+    #     for y in range(2015, 2025):
+    #         col = "Relative_Accessibility_{}".format(y) # Using Relative_Accessibility to determin the first deployment time
+    #         data.loc[(~data[col].isna()) & (data["earlistYear"] > y), ["earlistYear"]] = y
         
-        allSet = []
-        clusting = data[self.analysisType].unique().tolist()
-        for c in clusting:
-            subdata: pd.DataFrame = data.loc[data[self.analysisType] == c]
-            yearSet = subdata.groupby("earlistYear").size().reset_index(name=c).set_index("earlistYear")
-            yearSet[c] = yearSet[c] / yearSet[c].sum() * 100
-            allSet.append(yearSet)
+    #     allSet = []
+    #     clusting = data[self.analysisType].unique().tolist()
+    #     for c in clusting:
+    #         subdata: pd.DataFrame = data.loc[data[self.analysisType] == c]
+    #         yearSet = subdata.groupby("earlistYear").size().reset_index(name=c).set_index("earlistYear")
+    #         yearSet[c] = yearSet[c] / yearSet[c].sum() * 100
+    #         allSet.append(yearSet)
 
-        data: pd.DataFrame = allSet[0]
-        for i in allSet[1:]:
-            data = data.join(i, how="outer")
-        data = data.reindex(range(2015,2023), fill_value=0)
-        data.fillna(0, inplace=True)
+    #     data: pd.DataFrame = allSet[0]
+    #     for i in allSet[1:]:
+    #         data = data.join(i, how="outer")
+    #     data = data.reindex(range(2015,2023), fill_value=0)
+    #     data.fillna(0, inplace=True)
 
-        # Cal cumulate
-        data = data.cumsum().round(4)
-        cols = data.columns.to_numpy()
-        cols.sort()
-        # Expand x and y data to plot steps
-        xFill = []
-        yFill = {x: [] for x in cols}
-        for i, year in enumerate(data.index):
-            xFill.append(year)
-            if i < len(data.index) - 1:
-                xFill.append(data.index[i+1])
-            for col in cols:
-                yFill[col].append(data[col].iloc[i])
-                # Add end point if not final year
-                if i < len(data.index) - 1:
-                    yFill[col].append(data[col].iloc[i])
+    #     # Cal cumulate
+    #     data = data.cumsum().round(4)
+    #     cols = data.columns.to_numpy()
+    #     cols.sort()
+    #     # Expand x and y data to plot steps
+    #     xFill = []
+    #     yFill = {x: [] for x in cols}
+    #     for i, year in enumerate(data.index):
+    #         xFill.append(year)
+    #         if i < len(data.index) - 1:
+    #             xFill.append(data.index[i+1])
+    #         for col in cols:
+    #             yFill[col].append(data[col].iloc[i])
+    #             # Add end point if not final year
+    #             if i < len(data.index) - 1:
+    #                 yFill[col].append(data[col].iloc[i])
 
-        fig = plt.figure(figsize=FIG_SIZE.N)
-        ax = fig.add_subplot()
+    #     fig = plt.figure(figsize=FIG_SIZE.N)
+    #     ax = fig.add_subplot()
 
-        for i, col in enumerate(cols):
-            # Using step="post" plot filling area
-            ax.fill_between(xFill, 0, yFill[col], alpha=0.5, label=col, step="post", color=BAR_COLORS[self.colorGroup][i])
-            # Plot steps cruve
-            ax.step(data.index, data[col], where="post", color=BAR_COLORS[self.colorGroup][i], linewidth=1.5)
+    #     for i, col in enumerate(cols):
+    #         # Using step="post" plot filling area
+    #         ax.fill_between(xFill, 0, yFill[col], alpha=0.5, label=col, step="post", color=BAR_COLORS[self.colorGroup][i])
+    #         # Plot steps cruve
+    #         ax.step(data.index, data[col], where="post", color=BAR_COLORS[self.colorGroup][i], linewidth=1.5)
 
-        plt.xlabel("Year")
-        plt.ylabel("Ratio of Cities First Deploy Charging Facilities (%)")
-        plt.xticks(data.index, data.index, rotation = 90) # type: ignore
-        # plt.legend()
-        plt.tight_layout()
-        if self.path != "":
-            plt.savefig(os.path.join(self.path, "{}_timeDistribution.jpg".format(self.analysisType)), dpi=300)
-        else:
-            plt.show()
-        plt.close()
+    #     plt.xlabel("Year")
+    #     plt.ylabel("Ratio of Cities First Deploy Charging Facilities (%)")
+    #     plt.xticks(data.index, data.index, rotation = 90) # type: ignore
+    #     # plt.legend()
+    #     plt.tight_layout()
+    #     if self.path != "":
+    #         plt.savefig(os.path.join(self.path, "{}_timeDistribution.jpg".format(self.analysisType)), dpi=300)
+    #     else:
+    #         plt.show()
+    #     plt.close()
 
-        return
+    #     return
     
     def drawClusting(self, figsize: str = "HH") -> None:
         if self.analysisValue == "":
@@ -381,7 +310,7 @@ if __name__ == "__main__":
     a = pd.read_csv("China_Acc_Results\\Result\\city_with_clusting.csv", encoding="utf-8")
     gdp = pd.read_excel("China_Acc_Results\\Result\\city_gdponly.xlsx").set_index(u"区县")
     ev = pd.read_excel("China_Acc_Results\\Result\\China_2022_EV_ownership.xlsx")
-    b = clustingAnalysis(a, gdp, path=r".\\paper\\figure\\fig2").analysisEfficiency()
+    b = clustingAnalysis(a, gdp, path=r".\\paper\\figure\\fig2").analysisOptAcc()
     # b.drawRadar()
     # b.showTime()
     b.drawClusting(figsize="SHH")

@@ -333,7 +333,7 @@ class populationAnalysis:
 if __name__ == "__main__":
     from multiFigs import multiFigs
     f = multiFigs(1, 3, figsize="H3W", sharex=True, sharey=False)
-    x = ["city_efficiency_Female.csv", "city_efficiency_Male.csv"]
+    x = ["city_optAcc_Female.csv", "city_optAcc_Male.csv"]
     n = "Gender"
 
     # a = populationAnalysis(pd.DataFrame(), os.path.join("China_Acc_Results", "Result"), (x, x2), (n, n2))
@@ -343,7 +343,7 @@ if __name__ == "__main__":
     a = populationAnalysis(pd.DataFrame(), os.path.join("China_Acc_Results", "Result"), x, n)
     a.difference("M2SFCA_Accessibility", "gender", ax=f.axs[0])
 
-    x = ["city_efficiency_All_middle.csv", "city_efficiency_All_old.csv", "city_efficiency_All_young.csv"] # "city_efficiency_All_children.csv" No need for children
+    x = ["city_optAcc_All_middle.csv", "city_optAcc_All_old.csv", "city_optAcc_All_young.csv"] # "city_optAcc_All_children.csv" No need for children
     n = "Age"
     b = populationAnalysis(pd.DataFrame(), os.path.join("China_Acc_Results", "Result"), x, n)
     b.difference("M2SFCA_Accessibility", "age", adj=1, ax=f.axs[1:])

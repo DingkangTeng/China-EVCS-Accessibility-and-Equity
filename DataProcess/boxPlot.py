@@ -2,14 +2,12 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
-from matplotlib.ticker import MultipleLocator
+from typing import Iterable
 
 try:
     from .setting import plotSet, FIG_SIZE, TITLE, BAR_COLORS
 except:
     from setting import plotSet, FIG_SIZE, TITLE, BAR_COLORS
-
-from typing import Iterable
 
 def boxPlot(
     RESULT: pd.DataFrame,
@@ -82,9 +80,6 @@ def boxPlot(
 
 # Debug
 if __name__ == "__main__":
-    # RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
-    # boxPlot(RESULT.copy(), "Relative_Accessibility", ylim=(0.5, 0.8), figsize="SM", path=r".\\paper\\figure\\fig2")
-
     from multiFigs import multiFigs
     f = multiFigs(1, 3, figsize="HH", sharex=True, sharey=False)
     meanprops = {"markerfacecolor":"lightgreen"}
@@ -96,8 +91,6 @@ if __name__ == "__main__":
     boxPlot(df, colName, f.axs[1], "GDP Coverage", (0, 0.5), xticklabel=colName, figsize="S", color=1, meanprops=meanprops) # , path=r"paper\\figure\\fig1"
     df = pd.read_excel(r"China_Acc_Results\Result\Roads_Density_highway.xlsx")
     boxPlot(df, colName, f.axs[2], "Highway Density", (0, 16), xticklabel=colName, figsize="S", color=2, meanprops=meanprops) # , path=r"paper\\figure\\fig1"
-    # RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
-    # boxPlot(RESULT.copy(), "Relative_Accessibility", ylim=(0.4, 0.9))
 
     f.globalXlabel("Year", [-1])
     f.save(r"paper\\figure\\fig1\\basic.jpg")

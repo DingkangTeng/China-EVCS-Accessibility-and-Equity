@@ -115,7 +115,7 @@ class clusting:
 if __name__ == "__main__":
     import os
     BASE_MAP = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="CNMap_City", encoding="utf-8")
-    RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_efficiency.csv"), encoding="utf-8")
+    RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_optAcc.csv"), encoding="utf-8")
     RESULT = RESULT[RESULT["name"] != u"境界线"]
 
     # Clean Gini Nan

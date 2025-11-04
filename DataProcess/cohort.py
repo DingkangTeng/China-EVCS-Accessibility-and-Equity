@@ -8,47 +8,9 @@ try:
 except:
     from setting import plotSet, FIG_SIZE, BAR_COLORS
 
-# def cohort(RESULT: pd.DataFrame, colName: str) -> None:
-#     plotSet()
-#     matrix = []
-#     for i in range(2015, 2026):
-#         cohort = [0.0] * (i - 2015)
-#         # Only filter the rows that the relative accessibility is NA
-#         data = RESULT[~RESULT["Relative_Accessibility_{}".format(i)].isna()]
-#         # And the former years are NA
-#         if i > 2015:
-#             for j in range(2015, i):
-#                 data = data[data["Relative_Accessibility_{}".format(j)].isna()]
-#         if data.shape[0] == 0:
-#             for j in range(i, 2026):
-#                 cohort.append(0)
-#         else:
-#             for j in range(i, 2026):
-#                 subdata = data["{}_{}".format(colName, j)]
-#                 cohort.append(subdata.median())
-#         matrix.append(cohort)
-
-#     # Convert to numpy and set 0 as NaN
-#     matrix = np.array(matrix, dtype=float)
-#     matrix[matrix == 0] = np.nan
-
-#     plt.figure(figsize=FIG_SIZE.D)
-#     sns.heatmap(
-#         matrix,
-#         cmap="Reds",
-#         linewidths=0.5
-#     ) 
-
-#     plt.title("Pop.-Based {}".format(TITLE[colName]))
-
-#     plt.show()
-#     plt.close()
-
-#     return
-
 def cohort(RESULT: pd.DataFrame, colName: str, savePath: str = "") -> None:
     plotSet()
-    TITLE = {"M2SFCA_Gini": "Equity", "Relative_Accessibility":"Efficiency"}
+    TITLE = {"M2SFCA_Gini": "Equity", "Relative_Accessibility":"Opt-Acc"}
     years = list(range(2015, 2026))
     matrix = []
     for i in years:
