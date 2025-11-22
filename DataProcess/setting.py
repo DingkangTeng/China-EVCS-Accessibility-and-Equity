@@ -16,7 +16,7 @@ TITLE = {
     "Relative_Accessibility": "Opt-Acc",
     "M2SFCA_Accessibility": "Accessibility",
     u"人均GDP(元)": "GDP",
-    u"保有量": "EVs",
+    u"保有量": "NEVs",
     "tour": "Tourist City"
 }
 # # https://www.gov.cn/zhengce/zhengceku/2020-12/30/content_5575120.htm
@@ -48,14 +48,11 @@ class __FIG_SIZE:
 FIG_SIZE = __FIG_SIZE()
 BAR_COLORS = [
     ["#436C85", "#B73F42", "#DE9960", "#82B29B", "#EEE6CB"],
-    # ["#E76727", "#A8C3D1", "#A57E74", "#E9B693", "#EED7C6"],
     ["#DE476A", "#76AEA6", "#D79E8F", "#E5D2C4", "#F0E0D3"],
-    # ["#C22525", "#3F3A39", "#6F5E56", "#C3AB8C", "#E1D6C7"],
     ["#7D5A8A", "#DE7294", "#90BBAA", "#E6D2C2", "#F0E0D3"],
     ["#165188", "#BFCF61", "#9FCBC3", "#BFD3BC", "#DDDAB4"],
     ["#DE476A", "#76AEA6", "#D79E8F", "#7D5A8A", "#DE7294", "#90BBAA", "#165188", "#BFCF61", "#F0E0D3", "#000000"],
 ]
-# ["#BAD540", "#85A2D0", "#FFC339", "#000000"]
 
 def plotSet(scal1: float | int = 1, scal2: float | int = 1) -> None:
     labelSize = int(LABEL_SIZE * scal1)

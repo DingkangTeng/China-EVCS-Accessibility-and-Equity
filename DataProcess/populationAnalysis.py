@@ -8,9 +8,9 @@ from matplotlib.axes import Axes
 from scipy.stats import skew
 
 try:
-    from .setting import plotSet, FIG_SIZE, BAR_COLORS, TITLE, TICK_SIZE
+    from .setting import plotSet, FIG_SIZE, BAR_COLORS, TITLE
 except:
-    from setting import plotSet, FIG_SIZE, BAR_COLORS, TITLE, TICK_SIZE
+    from setting import plotSet, FIG_SIZE, BAR_COLORS, TITLE
 
 LEG_NAME = {
     "M2SFCA_Gini": "Equity",

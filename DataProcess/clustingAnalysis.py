@@ -291,9 +291,6 @@ class _AnalysisExecutorImpl(clustingAnalysis):
             )
             
             axs[i].set_xticklabels([None] + [str(x) for x in range(2015, 2027, 2)] + [None]) # type: ignore
-            # axs[i].set_ylabel(
-            #     "{} Index".format(TITLE.get(self.analysisValue))
-            # )
             axs[i].set_yticks([x / 10 for x in range(0, 11, 2)], [str(x / 10) for x in range(0, 11, 2)])
             axs[i].set_ylim(0.2, 1)
 

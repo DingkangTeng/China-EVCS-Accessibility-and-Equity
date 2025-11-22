@@ -21,7 +21,6 @@ def mergeData(PATH: str, sub: str = "Full") -> None:
         )
         df = df1.join(df2)
         df["Relative_Accessibility"] = df["M2SFCA_Accessibility"] / df["2SFCA_Accessibility"]
-        # df3 = pd.read_csv(os.path.join(SFCA, str(y), "{}_city_gini_summaries.csv".format(y)))[[INDEX] + ["Gini_Coefficient"]].set_index(INDEX).rename(columns={"Gini_Coefficient": "2SFCA_Gini"})
         df4 = (
             pd.read_csv(os.path.join(M2SFCA, str(y), "{}_city_gini_summaries.csv".format(y)))[[INDEX] + ["Gini_Coefficient"]].
             set_index(INDEX).rename(columns={"Gini_Coefficient": "M2SFCA_Gini"})

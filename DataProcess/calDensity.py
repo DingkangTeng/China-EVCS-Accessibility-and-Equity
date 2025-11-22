@@ -33,7 +33,7 @@ class calDensity:
             for city in self.cities:
                 for year in years:
                     if rasterRoot[1] == "population":
-                        raster = "chn_ppp_{}_1km_Aggregated_UNadj.tif".format(year if year < 2021 else 2020) # Population
+                        raster = "chn_pd_{}_1km_UNadj.tif".format(year if year < 2021 else 2020) # Population
                     elif rasterRoot[1] == "gdp":
                         raster = "gdp_{}.tif".format(2015 if year < 2020 else 2020)
                     else:
@@ -177,10 +177,10 @@ if __name__ == "__main__":
 
     boundarys = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="CNMap_City")
     a = calDensity(boundarys, evcs, "cityname", 32)
-    # a.calRasterDensity((r"C:\\0_PolyU\\cn_2015-2025_pop", "population"), r"China_Acc_Results\\Result\\")
+    a.calRasterDensity((r"C:\\0_PolyU\\cn_2015-2025_popDens", "population"), r"China_Acc_Results\\Result\\")
     # a.calRasterDensity((r"C:\\0_PolyU\\global_gdp", "gdp"), r"China_Acc_Results\\Result\\") # GDP
     # a.calRoadsDensity((r"C:\\0_PolyU\\roadsGraph\\CHN.gpkg", "edges"), 1000, r"China_Acc_Results\\Result\\")
-    a.calRoadsDensity(r"C:\\0_PolyU\\CHN_highwayonly.shp", 1000, r"China_Acc_Results\\Result\\")
+    # a.calRoadsDensity(r"C:\\0_PolyU\\CHN_highwayonly.shp", 1000, r"China_Acc_Results\\Result\\")
 
     # boundarys = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="CNMap_Province")
     # a = calDensity(boundarys, evcs, "pname", 32)

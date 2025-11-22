@@ -90,7 +90,7 @@ if __name__ == "__main__":
     df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_gdp.xlsx")
     boxPlot(df, colName, f.axs[1], "GDP Coverage", (0, 0.5), xticklabel=colName, figsize="S", color=1, meanprops=meanprops) # , path=r"paper\\figure\\fig1"
     df = pd.read_excel(r"China_Acc_Results\Result\Roads_Density_highway.xlsx")
-    boxPlot(df, colName, f.axs[2], "Highway Density", (0, 16), xticklabel=colName, figsize="S", color=2, meanprops=meanprops) # , path=r"paper\\figure\\fig1"
+    boxPlot(df, colName, f.axs[2], "Road Coverage", (0, 16), xticklabel=colName, figsize="S", color=2, meanprops=meanprops) # , path=r"paper\\figure\\fig1"
 
     f.globalXlabel("Year", [-1])
     f.save(r"paper\\figure\\fig1\\basic.jpg")

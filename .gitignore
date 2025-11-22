@@ -1,16 +1,9 @@
 .backups
-GpMessages
-ImportLog
-RasterFunctionTemplates
-*.pptx
-paper
+_ArcGIS
+_China_Acc_Results
+_Data
+_paper
 *.docx
-/Data/充电Amap
-/Data/充电Baidu
-*.gdb
-Amap*.csv
-Baidu*.csv
+*.pptx
 *.code-workspace
 __pycache__
-/Data/中国EV数量（city level）
-*copy*

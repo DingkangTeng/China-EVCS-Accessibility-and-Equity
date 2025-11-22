@@ -3,8 +3,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import geopandas as gpd
 import numpy as np
-import plotly.graph_objects as go
-import plotly.express as px
 
 try:
     from .setting import plotSet, INDEX, FIG_SIZE, BAR_COLORS
