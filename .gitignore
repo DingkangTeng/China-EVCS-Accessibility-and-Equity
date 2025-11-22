@@ -6,4 +6,6 @@ _paper
 *.docx
 *.pptx
 *.code-workspace
+*.cmd
+requirements.txt
 __pycache__
