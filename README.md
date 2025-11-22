@@ -57,6 +57,7 @@ Typically, the installation should be prompt (around _10-20 min_ from a "_clean_
    > ```
    > - _ArcGIS.7z
    > - _China_Acc_Results.7z
+   > - _OtherData.7z
    > ```
 3. Unzip each compressed dataset (``.7z`` file) and drag folders/files into corresponding dir of this repo. 
  For example, extract all files from the ``_ArcGIS.7z`` to the root dir ``.``.
