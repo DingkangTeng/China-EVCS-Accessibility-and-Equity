@@ -1,8 +1,5 @@
 .backups
-_ArcGIS
-_China_Acc_Results
-_Data
-_paper
+_*
 *.docx
 *.pptx
 *.code-workspace
