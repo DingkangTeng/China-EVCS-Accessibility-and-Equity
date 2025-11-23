@@ -36,7 +36,7 @@ Typically, the installation should be prompt (around _10-20 min_ from a "_clean_
 
 
 - via **Command Line** (using **_Terminal_** for macOS machine and **_Anaconda Prompt_** for Windows machine, respectively)
-  1. Create your new Python environment )
+  1. Create your new Python environment
      ```
      conda create --name <input_your_environment_name> python=3.10.6
      ```
@@ -51,20 +51,20 @@ Typically, the installation should be prompt (around _10-20 min_ from a "_clean_
 
 # Usage
 1. Git clone/download the repository to your local disk.
-2. Unzip the full datasets (which can be provided upon request, see [Overview](https://github.com/DingkangTeng/China-EVCS-Accessibility-and-Equity?tab=readme-ov-file#overview))
+2. Unzip the full datasets in ``data`` (which can be provided upon request, see [Overview](https://github.com/DingkangTeng/China-EVCS-Accessibility-and-Equity?tab=readme-ov-file#overview))
    > The structure of the provided full datasets should look like as below:
    > 
    > ```
-   > - _ArcGIS.7z
-   > - _China_Acc_Results.7z
-   > - _OtherData.7z
+   > - _China EVCS_Dataset_with_Boudaries.7z
+   > - _RowData.7z
+   > - _Population_GDP_Highway.7z
    > ```
 3. Unzip each compressed dataset (``.7z`` file) and drag folders/files into corresponding dir of this repo. 
- For example, extract all files from the ``_ArcGIS.7z`` to the root dir ``.``.
+ For example, extract all files from the ``_China EVCS_Dataset_with_Boudaries`` to the root dir ``.``.
 4. Run
    1. **preprocessing**: ...
-   2. **analysis**: run each cell in the jupyter ``main.ipynb``
-5. Outputs (including excel files and figures) will be stored in the dir ``./_China_Acc_Results/Result/`` and ``./_China_Acc_Results/figure/``, respectively.
+   2. **analysis**: modify the datasets dir in the first cell and run each cell in the jupyter ``main.ipynb``
+5. Outputs (including excel files and figures) will be stored in the dir ``./_AnalysisData/result/`` and ``./_AnalysisData/figure/``, respectively.
 
 # Contact
 - Leave questions in [Issues on GitHub](https://github.com/DingkangTeng/China-EVCS-Accessibility-and-Equity/issues)
