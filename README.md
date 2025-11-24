@@ -50,7 +50,8 @@ Typically, the installation should be prompt (around _10-20 min_ from a "_clean_
      conda install <package_name>=<specific_version>
      ```
 
-## Project Structure  
+## Project Structure 
+```
 ├─┬ **code**  
 │ ├── code for accessibility and equity computation/ # Code for 2SFCA & M2SFCA accessibility and equity calculation  
 │ └── code for analysis and visualization/ # Code for output data analysis and visualization  
@@ -70,6 +71,7 @@ Typically, the installation should be prompt (around _10-20 min_ from a "_clean_
     ├── _Population_GDP_Highway.7z.004 # _Population_GDP_Highway.7z part 4
     ├── _RowData.7z # City level GDP data, EVCS data, and NEV ownership data
     └── _China EVCS_Dataset_with_Boudaries.7z # ataset for China EVCS datasets 2015-2025 and Chiese cities boundaries
+```
 
 # Usage
 1. Git clone/download the repository to your local disk.
