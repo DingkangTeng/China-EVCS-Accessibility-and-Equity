@@ -65,12 +65,12 @@ Typically, the installation should be prompt (around _10-20 min_ from a "_clean_
     ├── CN-EV charging station/ # Dataset for China EVCS datasets 2015-2025
     ├── CN-map/ # Dataset for China and Beijing boundaries
     ├── CN-WorldPOP/ # Population counts dataset for worldpop, too large to upload
-    ├── _Population_GDP_Highway.7z.001 # Population density dataset for worldpop (too large to upload), gdp per capita, and road (highway) network data
+    ├── _Population_GDP_Highway.7z.001 # Population density dataset for worldpop (too large to upload), GDP per capita, and road (highway) network data
     ├── _Population_GDP_Highway.7z.002 # _Population_GDP_Highway.7z part 2
     ├── _Population_GDP_Highway.7z.003 # _Population_GDP_Highway.7z part 3
     ├── _Population_GDP_Highway.7z.004 # _Population_GDP_Highway.7z part 4
     ├── _RowData.7z # City level GDP data, EVCS data, and NEV ownership data
-    └── _China EVCS_Dataset_with_Boudaries.7z # ataset for China EVCS datasets 2015-2025 and Chiese cities boundaries
+    └── _China EVCS_Dataset_with_Boudaries.7z # dataset for China EVCS datasets 2015-2025 and Chinese cities boundaries
 ```
 
 # Usage
