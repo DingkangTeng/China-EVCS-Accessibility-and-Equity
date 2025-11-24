@@ -1,5 +1,5 @@
 .backups
-_*
+/_*
 *.docx
 *.pptx
 *.code-workspace
