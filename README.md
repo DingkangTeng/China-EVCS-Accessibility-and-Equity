@@ -51,27 +51,25 @@ Typically, the installation should be prompt (around _10-20 min_ from a "_clean_
      ```
 
 ## Project Structure  
-├── **code**  
+├─┬ **code**  
 │ ├── code for accessibility and equity computation/ # Code for 2SFCA & M2SFCA accessibility and equity calculation  
 │ └── code for analysis and visualization/ # Code for output data analysis and visualization  
 │  
-├── **data** # Full dataset for China analysis (too large for GitHub)  
-│ ├── _AnalysisData  
-│ │ ├── figure/ # Dataset for visualization  
-│ │ └── result/ # Output Dataset for acc and equity analysis  
-│ │    
-│ ├── _SampleData     
-│ │ ├── CN-EV charging station/ # Dataset for China EVCS datasets 2015-2025    
-│ │ ├── CN-map/ # Dataset for China and Beijing boundaries.  
-│ │ ├── CN-WorldPOP/ # Dataset for worldpop, too large to upload.  
-│ │ ├── _Population_GDP_Highway.7z.001  
-│ │ ├── _Population_GDP_Highway.7z.002  
-│ │ ├── _Population_GDP_Highway.7z.003  
-│ │ ├── _Population_GDP_Highway.7z.004  
-│ │ ├── _RowData.7z  
-│ │ └── _China EVCS_Dataset_with_Boudaries.7z  
-└──   
-
+└─┬ **data** # Full dataset for China analysis (too large for GitHub)  
+  ├─┬ _AnalysisData  
+  │ ├── figure/ # Dataset for visualization  
+  │ └── result/ # Output Dataset for acc and equity analysis  
+  │    
+  └─┬ _SampleData     
+    ├── CN-EV charging station/ # Dataset for China EVCS datasets 2015-2025
+    ├── CN-map/ # Dataset for China and Beijing boundaries
+    ├── CN-WorldPOP/ # Population counts dataset for worldpop, too large to upload
+    ├── _Population_GDP_Highway.7z.001 # Population density dataset for worldpop (too large to upload),  gdp per capita, and road (highway) network data
+    ├── _Population_GDP_Highway.7z.002 # _Population_GDP_Highway.7z part 2
+    ├── _Population_GDP_Highway.7z.003 # _Population_GDP_Highway.7z part 3
+    ├── _Population_GDP_Highway.7z.004 # _Population_GDP_Highway.7z part 4
+    ├── _RowData.7z # City level GDP data, EVCS data, and NEV ownership data
+    └── _China EVCS_Dataset_with_Boudaries.7z # ataset for China EVCS datasets 2015-2025 and Chiese cities boundaries
 
 # Usage
 1. Git clone/download the repository to your local disk.
@@ -85,9 +83,9 @@ Typically, the installation should be prompt (around _10-20 min_ from a "_clean_
    > ```
 3. Unzip each compressed dataset (``.7z`` file) and drag folders/files into corresponding dir of this repo. 
  For example, extract all files from the ``_China EVCS_Dataset_with_Boudaries`` to the root dir ``.``.
-4. Run
-   1. **preprocessing**: ...
-   2. **analysis**: modify the datasets dir in the first cell and run each cell in the jupyter ``main.ipynb``
+4. Run script in ``code``
+   1. **code for accessibility and equity computation**: configure the paths in ``main.py`` as needed and set up the 2SFCA and M2SFCA functions within the ``process_evse_type`` function in ``tool/overlay_tool_thread.py`` to generate the respective outputs.
+   2. **code for analysis and visualization**: modify the datasets dir in the first cell and run each cell in the jupyter ``main.ipynb``
 5. Outputs (including excel files and figures) will be stored in the dir ``./_AnalysisData/result/`` and ``./_AnalysisData/figure/``, respectively.
 
 ## Sample Data Testing
