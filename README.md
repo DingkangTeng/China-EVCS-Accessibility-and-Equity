@@ -56,21 +56,21 @@ Typically, the installation should be prompt (around _10-20 min_ from a "_clean_
 │ └── code for analysis and visualization/ # Code for output data analysis and visualization  
 │  
 ├── **data** # Full dataset for China analysis (too large for GitHub)  
-│ ├── _AnalysisData
+│ ├── _AnalysisData  
 │ │ ├── figure/ # Dataset for visualization  
-│ │ └── result/ # Output Dataset for acc and equity analysis
-│ │  
-│ ├── _SampleData   
-│ │ ├── CN-EV charging station/ # Dataset for China EVCS datasets 2015-2025  
-│ │ ├── CN-map/ # Dataset for China and Beijing boundaries
-│ │ ├── CN-WorldPOP/ # Dataset for worldpop, too large to upload.
-│ │ ├── _Population_GDP_Highway.7z.001
-│ │ ├── _Population_GDP_Highway.7z.002
-│ │ ├── _Population_GDP_Highway.7z.003
-│ │ ├── _Population_GDP_Highway.7z.004
-│ │ ├── _RowData.7z
-│ │ └── _China EVCS_Dataset_with_Boudaries.7z
-└── 
+│ │ └── result/ # Output Dataset for acc and equity analysis  
+│ │    
+│ ├── _SampleData     
+│ │ ├── CN-EV charging station/ # Dataset for China EVCS datasets 2015-2025    
+│ │ ├── CN-map/ # Dataset for China and Beijing boundaries.  
+│ │ ├── CN-WorldPOP/ # Dataset for worldpop, too large to upload.  
+│ │ ├── _Population_GDP_Highway.7z.001  
+│ │ ├── _Population_GDP_Highway.7z.002  
+│ │ ├── _Population_GDP_Highway.7z.003  
+│ │ ├── _Population_GDP_Highway.7z.004  
+│ │ ├── _RowData.7z  
+│ │ └── _China EVCS_Dataset_with_Boudaries.7z  
+└──   
 
 
 # Usage
@@ -95,7 +95,7 @@ Typically, the installation should be prompt (around _10-20 min_ from a "_clean_
 One Python scripts are provided for testing the project using small sample datasets (located in the `_SampleData` folder). The paths in the scripts are already set up, so you can download the sample data and run the scripts directly:
 
 - `code/code for accessibility and equity computation/main_sample_data.py`  
-  - Tests the **M2SFCA accessibility and equity** calculations using sample data from Beijing in 2015.
+  - Test the **M2SFCA accessibility and equity** calculations using sample data from Beijing in 2015.
 
 # Contact
 - Leave questions in [Issues on GitHub](https://github.com/DingkangTeng/China-EVCS-Accessibility-and-Equity/issues)
