@@ -23,6 +23,7 @@ It is highly recommended to install and use the following versions of python/pac
 - ``scipy`` == 1.16.3
 - ``seaborn`` == 0.13.2
 - ``tqdm`` == 4.67.1
+- ``pyproj`` == 3.7.1
 
 ## Installation
 It is highly recommended to download [AnaConda](https://www.anaconda.com) to create/manage Python environments.
@@ -49,6 +50,29 @@ Typically, the installation should be prompt (around _10-20 min_ from a "_clean_
      conda install <package_name>=<specific_version>
      ```
 
+## Project Structure  
+├── **code**  
+│ ├── code for accessibility and equity computation/ # Code for 2SFCA & M2SFCA accessibility and equity calculation  
+│ └── code for analysis and visualization/ # Code for output data analysis and visualization  
+│  
+├── **data** # Full dataset for China analysis (too large for GitHub)  
+│ ├── _AnalysisData
+│ │ ├── figure/ # Dataset for visualization  
+│ │ └── result/ # Output Dataset for acc and equity analysis
+│ │  
+│ ├── _SampleData   
+│ │ ├── CN-EV charging station/ # Dataset for China EVCS datasets 2015-2025  
+│ │ ├── CN-map/ # Dataset for China and Beijing boundaries
+│ │ ├── CN-WorldPOP/ # Dataset for worldpop, too large to upload.
+│ │ ├── _Population_GDP_Highway.7z.001
+│ │ ├── _Population_GDP_Highway.7z.002
+│ │ ├── _Population_GDP_Highway.7z.003
+│ │ ├── _Population_GDP_Highway.7z.004
+│ │ ├── _RowData.7z
+│ │ └── _China EVCS_Dataset_with_Boudaries.7z
+└── 
+
+
 # Usage
 1. Git clone/download the repository to your local disk.
 2. Unzip the full datasets in ``data`` (which can be provided upon request, see [Overview](https://github.com/DingkangTeng/China-EVCS-Accessibility-and-Equity?tab=readme-ov-file#overview))
@@ -65,6 +89,13 @@ Typically, the installation should be prompt (around _10-20 min_ from a "_clean_
    1. **preprocessing**: ...
    2. **analysis**: modify the datasets dir in the first cell and run each cell in the jupyter ``main.ipynb``
 5. Outputs (including excel files and figures) will be stored in the dir ``./_AnalysisData/result/`` and ``./_AnalysisData/figure/``, respectively.
+
+## Sample Data Testing
+
+One Python scripts are provided for testing the project using small sample datasets (located in the `_SampleData` folder). The paths in the scripts are already set up, so you can download the sample data and run the scripts directly:
+
+- `code/code for accessibility and equity computation/main_sample_data.py`  
+  - Tests the **M2SFCA accessibility and equity** calculations using sample data from Beijing in 2015.
 
 # Contact
 - Leave questions in [Issues on GitHub](https://github.com/DingkangTeng/China-EVCS-Accessibility-and-Equity/issues)
