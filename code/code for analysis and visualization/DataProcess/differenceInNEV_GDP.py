@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import spearmanr, skew, kurtosis, normaltest
@@ -100,7 +99,7 @@ class differenceInNEV_GDP:
         )
 
         ax.set_xticklabels(["" if int(x) % 2 ==0 else x for x in years])
-        ax.set_ylabel("{} Indeics".format(TITLE.get(colName)))
+        ax.set_ylabel("{} Index".format(TITLE.get(colName)))
 
         if ylim != (0.0, 0.0):
             plt.ylim(ylim)
@@ -143,19 +142,22 @@ def spearman(class1: differenceInNEV_GDP, class2: differenceInNEV_GDP) -> None:
 
 # Debug
 if __name__ == "__main__":
-    import os
-    RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_optAcc.csv"), encoding="utf-8")
+    ROW_DATA_PATH = r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\_RowData"
+    FIG_PATH = r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\_AnalysisData\figure"
+    AGG_DATA = r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\_AnalysisData\result\AggResult"
 
-    ev = pd.read_excel("China_Acc_Results\\Result\\China_2022_EV_ownership.xlsx").set_index(u"城市")
-    gdp = pd.read_excel("China_Acc_Results\\Result\\city_gdponly.xlsx").set_index(u"区县")
+    RESULT = pd.read_csv(os.path.join(AGG_DATA, "city_optAcc.csv"), encoding="utf-8")
+
+    nev = pd.read_excel(os.path.join(ROW_DATA_PATH, "China_2022_NEV_ownership.xlsx")).set_index(u"城市")
+    gdp = pd.read_excel(os.path.join(ROW_DATA_PATH, "city_gdponly.xlsx")).set_index(u"区县")
     
-    a = differenceInNEV_GDP(RESULT, (ev, u"保有量"))
-    a.boxPlot("M2SFCA_Gini", (0.5, 1), legLoc="lower left", colorGroup = 1, savePath=r".\\paper\\figure\\fig3")
-    a.boxPlot("Relative_Accessibility", (0.5, 0.8), figsize="SM", savePath=r".\\paper\\figure\\fig2")
+    a = differenceInNEV_GDP(RESULT, (nev, u"保有量"))
+    a.boxPlot("M2SFCA_Gini", (0.5, 1), legLoc="lower left", colorGroup = 1, savePath=os.path.join(FIG_PATH, "fig3"))
+    a.boxPlot("Relative_Accessibility", (0.5, 0.8), figsize="SM", savePath=os.path.join(FIG_PATH, "fig2"))
     
     b = differenceInNEV_GDP(RESULT, (gdp, u"人均GDP(元)"))
-    b.boxPlot("M2SFCA_Gini", (0.5, 1), legLoc="lower left", colorGroup = 1, savePath=r".\\paper\\figure\\fig3")
-    b.boxPlot("Relative_Accessibility", (0.5, 0.8), figsize="SM", savePath=r".\\paper\\figure\\fig2")
+    b.boxPlot("M2SFCA_Gini", (0.5, 1), legLoc="lower left", colorGroup = 1, savePath=os.path.join(FIG_PATH, "fig3"))
+    b.boxPlot("Relative_Accessibility", (0.5, 0.8), figsize="SM", savePath=os.path.join(FIG_PATH, "fig2"))
     
     # # # Spearman's rank correlation coefficient
     # # spearman(a, b)
