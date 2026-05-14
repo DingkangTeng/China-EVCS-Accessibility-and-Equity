@@ -1,5 +1,7 @@
 import os
 import pandas as pd
+import numpy as np
+from scipy import stats
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from typing import Iterable
@@ -52,6 +54,43 @@ def boxPlot(
         **kwgs
     )
 
+    # Add means trend line
+    means = analysis.mean()
+    xPos = np.arange(1, len(means) + 1)
+    _, _, _, p, _ = stats.linregress(xPos, means)
+    p = float(p) # type: ignore
+    if p < 0.001:
+        stars = " $^{\\!\\!\\!***}$"
+    elif p < 0.01:
+        stars = "$^{**}$"
+    elif p < 0.05:
+        stars = "$^{*}$"
+    else:
+        stars = ""
+    coeffs = np.polyfit(xPos, means, deg=1)
+    polyFunc = np.poly1d(coeffs)
+    xSmooth = np.linspace(xPos.min(), xPos.max(), 100)
+    ySmooth = polyFunc(xSmooth)
+
+    plot.plot(
+        xSmooth, ySmooth,
+        marker = None,
+        linestyle = "--",
+        color = "green",
+        label = "Mean Trend"
+    )
+
+    # Slop
+    ax.text(
+        0.68, 0.95,
+        f"Slope = {coeffs[0]:.4f}{stars}",
+        transform = ax.transAxes,
+        ha = "left",
+        va = "top",
+        bbox = dict(boxstyle="round", facecolor='white', alpha=0.7)
+    )
+
+    # Beautify
     if ylim != (0.0, 0.0):
         plot.set_ylim(ylim)
     else:
@@ -85,12 +124,23 @@ if __name__ == "__main__":
     meanprops = {"markerfacecolor":"lightgreen"}
     colName = list(range(2015, 2026))
 
-    df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_population.xlsx")
+    df = pd.read_excel(r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\data\_AnalysisData\result\Raster_Density_population.xlsx")
     boxPlot(df, colName, f.axs[0], "Pop. Coverage", (0, 0.5), xticklabel=colName, figsize="S", color=0, meanprops=meanprops) # , path=r"paper\\figure\\fig1"
-    df = pd.read_excel(r"China_Acc_Results\Result\Raster_Density_gdp.xlsx")
+    df = pd.read_excel(r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\data\_AnalysisData\result\Raster_Density_gdp.xlsx")
     boxPlot(df, colName, f.axs[1], "GDP Coverage", (0, 0.5), xticklabel=colName, figsize="S", color=1, meanprops=meanprops) # , path=r"paper\\figure\\fig1"
-    df = pd.read_excel(r"China_Acc_Results\Result\Roads_Density_highway.xlsx")
+    df = pd.read_excel(r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\data\_AnalysisData\result\Roads_Density_highway.xlsx")
     boxPlot(df, colName, f.axs[2], "Road Coverage", (0, 16), xticklabel=colName, figsize="S", color=2, meanprops=meanprops) # , path=r"paper\\figure\\fig1"
 
     f.globalXlabel("Year", [-1])
-    f.save(r"paper\\figure\\fig1\\basic.jpg")
+    from matplotlib.lines import Line2D
+    legend = [
+        Line2D([0], [0], marker='^', color='lightgreen', 
+            linestyle='none', markerfacecolor='lightgreen', markersize=8, label='Mean'),
+        Line2D([0], [0], linestyle='--', color='green', linewidth=2, label='Mean Trend')
+    ]
+    f.legend(
+        handles=legend,
+        loc="lower center",
+        ncol=2
+    )
+    f.save(r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\_AnalysisData\figure\fig1\basic.jpg")

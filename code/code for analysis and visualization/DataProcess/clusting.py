@@ -3,15 +3,16 @@ import geopandas as gpd
 import numpy as np
 import libpysal as ps  # Spatial weight matrix library
 import matplotlib.pyplot as plt
+from matplotlib.ticker import LinearLocator
 from esda.moran import Moran
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
 try:
-    from .setting import INDEX, OTHER_COLUMNS, NULL_CITIES, plotSet
+    from .setting import INDEX, OTHER_COLUMNS, NULL_CITIES, plotSet, FIG_SIZE
 except:
-    from setting import INDEX, OTHER_COLUMNS, NULL_CITIES, plotSet
+    from setting import INDEX, OTHER_COLUMNS, NULL_CITIES, plotSet, FIG_SIZE
 
 # Clusting analysis
 class clusting:
@@ -38,7 +39,11 @@ class clusting:
     
     # Function used to evulates the best k
     @staticmethod
-    def __findOptimalK(features: dict[str, list], maxK: int=10):
+    def __findOptimalK(
+        colName: str, features: dict[str, list],
+        savePath: str,
+        maxK: int=10
+    ):
         inertias = []
         silhouettes = []
         data = [x for x in features.values() if x is not None]
@@ -48,14 +53,51 @@ class clusting:
             inertias.append(km.inertia_)
             silhouettes.append(silhouette_score(data, km.labels_)) # type: ignore
         
-        fig, ax1 = plt.subplots()
+        fig = plt.figure(figsize=getattr(FIG_SIZE, "D"))
+        ax1 = plt.subplot()
         ax2 = ax1.twinx()
-        ax1.plot(range(2, maxK + 1), inertias, 'bo-', label='Inertia')
-        ax2.plot(range(2, maxK + 1), silhouettes, 'rs-', label='Silhouette') # 轮廓系数	[-1,1] 越大越好
-        ax1.set_xlabel('Number of clusters')
-        ax1.set_ylabel('Inertia', color='b')
-        ax2.set_ylabel('Silhouette Score', color='r')
-        plt.show()
+        ax1.plot(range(2, maxK + 1), inertias, "bo-", label="Inertia")
+        ax2.plot(range(2, maxK + 1), silhouettes, "rs-", label="Silhouette")
+        ax1.set_xlabel("Number of clusters")
+        ax1.set_ylabel("Inertia")
+        ax2.set_ylabel("Silhouette Score")
+
+        # Add note
+        maxIdx = int(np.argmax(silhouettes))
+        bestScore = silhouettes[maxIdx]
+        ax2.annotate(
+            f"{bestScore:.2f}",
+            xy=(2+maxIdx, bestScore),
+            xytext=(10, 10),
+            textcoords="offset points",
+            arrowprops=dict(arrowstyle="->", color="red")
+        )
+
+        # Adjust y-axis ticks
+        ax2.grid(False)
+        ax1.yaxis.set_major_locator(LinearLocator(6))
+        ax2.yaxis.set_major_locator(LinearLocator(6))
+
+        # Legend
+        lines1, labels1 = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax1.legend(
+            lines1 + lines2,
+            labels1 + labels2,
+            loc="lower center",
+            ncols=2,
+            bbox_to_anchor=(0.5, -0.2)
+        )
+
+        plt.tight_layout()
+        if savePath == "":
+            plt.show()
+        else:
+            plt.savefig(os.path.join(savePath, "KMeans_{}.jpg".format(colName)), dpi=300)
+
+        plt.close()
+
+        return
 
     def clusting(self, colName: str, CLUSTER_NUM: int) -> dict[int, list[str]]:
         data: dict[str, list] | None = self.features.get(colName, None)
@@ -76,7 +118,7 @@ class clusting:
             cities = clusterData.index.to_list()
             print(f"Cluster {clusterId}: {cities} ({len(cities)})")
             clusterResult[clusterId] = cities
-            plt.plot(np.nanmedian(clusterData.drop(columns="cluster"), axis=0), label=f'Cluster {clusterId}')
+            plt.plot(np.nanmedian(clusterData.drop(columns="cluster"), axis=0), label=f"Cluster {clusterId}")
         
         plt.legend()
         plt.show()
@@ -98,7 +140,7 @@ class clusting:
 
         return
     
-    def showK(self, colName: str, show: bool = True):
+    def showK(self, colName: str, show: bool = True, savePath: str = "") -> None:
         self.features[colName] = {}
         df = self.RESULT.loc[:, self.__getLabel(colName)]
         for index, citySeries in zip(df.index, df.to_numpy()):
@@ -110,12 +152,12 @@ class clusting:
                 np.std(citySeries), # standard deviation
             ]
         if show:
-            self.__findOptimalK(self.features[colName])
+            self.__findOptimalK(colName, self.features[colName], savePath)
 
 if __name__ == "__main__":
     import os
-    BASE_MAP = gpd.read_file("ArcGIS\\ChinaDynam.gdb", layer="CNMap_City", encoding="utf-8")
-    RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_optAcc.csv"), encoding="utf-8")
+    BASE_MAP = gpd.read_file(r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\_ArcGIS\ChinaDynam.gdb", layer="CNMap_City", encoding="utf-8")
+    RESULT = pd.read_csv(r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\_AnalysisData\result\AggResult\city_optAcc.csv", encoding="utf-8")
     RESULT = RESULT[RESULT["name"] != u"境界线"]
 
     # Clean Gini Nan
@@ -123,7 +165,7 @@ if __name__ == "__main__":
         RESULT.loc[RESULT["Relative_Accessibility_{}".format(y)].isna(), "M2SFCA_Gini_{}".format(y)] = np.nan
 
     a = clusting(RESULT.copy(), BASE_MAP.copy())
-    a.showK("M2SFCA_Gini", False)
-    a.showK("Relative_Accessibility",False)
-    a.clusting("Relative_Accessibility", 3)
-    a.clusting("M2SFCA_Gini", 2)
+    a.showK("M2SFCA_Gini", savePath=r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\_AnalysisData\figure\appendix")
+    a.showK("Relative_Accessibility", savePath=r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\_AnalysisData\figure\appendix")
+    # a.clusting("Relative_Accessibility", 3)
+    # a.clusting("M2SFCA_Gini", 2)
