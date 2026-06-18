@@ -20,6 +20,7 @@ def boxPlot(
     figsize: str = "D",
     xticklabel: Iterable = [],
     colorGroup: int = 0, color: int = 0,
+    slop: bool = False,
     path: str = "",
     **kwgs
     ) -> None:
@@ -53,42 +54,42 @@ def boxPlot(
         capprops = {"color": "gray"},
         **kwgs
     )
+    
+    if slop:
+        # Add means trend line
+        means = analysis.mean()
+        xPos = np.arange(1, len(means) + 1)
+        _, _, _, p, _ = stats.linregress(xPos, means)
+        p = float(p) # type: ignore
+        if p < 0.001:
+            stars = " $^{\\!\\!\\!***}$"
+        elif p < 0.01:
+            stars = "$^{**}$"
+        elif p < 0.05:
+            stars = "$^{*}$"
+        else:
+            stars = ""
+        coeffs = np.polyfit(xPos, means, deg=1)
+        polyFunc = np.poly1d(coeffs)
+        xSmooth = np.linspace(xPos.min(), xPos.max(), 100)
+        ySmooth = polyFunc(xSmooth)
 
-    # Add means trend line
-    means = analysis.mean()
-    xPos = np.arange(1, len(means) + 1)
-    _, _, _, p, _ = stats.linregress(xPos, means)
-    p = float(p) # type: ignore
-    if p < 0.001:
-        stars = " $^{\\!\\!\\!***}$"
-    elif p < 0.01:
-        stars = "$^{**}$"
-    elif p < 0.05:
-        stars = "$^{*}$"
-    else:
-        stars = ""
-    coeffs = np.polyfit(xPos, means, deg=1)
-    polyFunc = np.poly1d(coeffs)
-    xSmooth = np.linspace(xPos.min(), xPos.max(), 100)
-    ySmooth = polyFunc(xSmooth)
-
-    plot.plot(
-        xSmooth, ySmooth,
-        marker = None,
-        linestyle = "--",
-        color = "green",
-        label = "Mean Trend"
-    )
-
-    # Slop
-    ax.text(
-        0.68, 0.95,
-        f"Slope = {coeffs[0]:.4f}{stars}",
-        transform = ax.transAxes,
-        ha = "left",
-        va = "top",
-        bbox = dict(boxstyle="round", facecolor='white', alpha=0.7)
-    )
+        plot.plot(
+            xSmooth, ySmooth,
+            marker = None,
+            linestyle = "--",
+            color = "green",
+            label = "Mean Trend"
+        )
+        # Slop
+        ax.text(
+            0.68, 0.95,
+            f"Slope = {coeffs[0]:.4f}{stars}",
+            transform = ax.transAxes,
+            ha = "left",
+            va = "top",
+            bbox = dict(boxstyle="round", facecolor='white', alpha=0.7)
+        )
 
     # Beautify
     if ylim != (0.0, 0.0):

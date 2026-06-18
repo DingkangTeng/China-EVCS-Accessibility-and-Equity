@@ -8,7 +8,7 @@ try:
 except:
     from setting import plotSet, FIG_SIZE, BAR_COLORS
 
-def cohort(RESULT: pd.DataFrame, colName: str, savePath: str = "") -> None:
+def cohort(RESULT: pd.DataFrame, colName: str, figsize: str = "D", savePath: str = "") -> None:
     plotSet()
     TITLE = {"M2SFCA_Gini": "Equity", "Relative_Accessibility":"Opt-Acc"}
     years = list(range(2015, 2026))
@@ -37,7 +37,7 @@ def cohort(RESULT: pd.DataFrame, colName: str, savePath: str = "") -> None:
     matrix[matrix == 0] = np.nan
     xticks = range(2015, 2026)
 
-    plt.figure(figsize=FIG_SIZE.D)
+    plt.figure(figsize=getattr(FIG_SIZE, figsize))
 
     skip = 0
     line = ["-", "-."]
@@ -65,7 +65,10 @@ def cohort(RESULT: pd.DataFrame, colName: str, savePath: str = "") -> None:
     return
 
 if __name__ == "__main__":
-    import os
-    RESULT = pd.read_csv(os.path.join("China_Acc_Results", "Result", "city_optAcc.csv"), encoding="utf-8")
+    FIG_PATH = r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\_AnalysisData\figure"
+    RESULT = pd.read_csv(
+        r"C:\Users\tengd\OneDrive - The Hong Kong Polytechnic University\Student Assistant\ChinaDynam\_AnalysisData\result\AggResult\city_optAcc.csv",
+        encoding="utf-8"
+    )
     # cohort(RESULT, "Relative_Accessibility")
-    cohort(RESULT, "M2SFCA_Gini", r".\\paper\\figure\\fig3")
+    cohort(RESULT, "M2SFCA_Gini", "DS", os.path.join(FIG_PATH, "fig4"))

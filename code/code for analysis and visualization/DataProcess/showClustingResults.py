@@ -19,7 +19,7 @@ class showClustingResults:
         self._colorGroup = colorGroup
         self._analysisType: str
         self._analysisValue: str
-        plotSet()
+        plotSet(modxy=False)
         
     def analysisAll(self, andlysisValue: str = "") -> "_AnalysisExecutorImpl":
         self._analysisType = "clusting"
@@ -117,128 +117,6 @@ class _AnalysisExecutorImpl(showClustingResults):
                 raise RuntimeError("Unrecognized indicator.")
 
         return
-    
-    # def drawRadar(self, figsize: tuple[int, int] = FIG_SIZE.D) -> None:
-    #     fig = plt.figure(figsize=figsize)
-    #     ax = fig.add_subplot(polar=True)
-    #     ax.grid(True)
-    #     plt.subplots_adjust(left=0.1, right=0.8, top=0.9, bottom=0.1)
-
-    #     if self.indicator == "gdp":
-    #         categories = ["PPI", "PSI", "PTI"]
-    #         xticklabels = ["Portion of\nprimary\nindustry", "Portion of\nsecondary industry", "Portion of\ntertiary industry"]
-    #     elif self.indicator == "ev":
-    #         categories = xticklabels = self.clusterStats["clusting"]
-    #     else:
-    #         raise RuntimeError("Unrecognized indicator.")
-        
-    #     angles = [n / float(len(categories)) * 2 * 3.14 for n in range(len(categories))]
-    #     angles += angles[:1]
-        
-    #     if self.indicator == "gdp":
-    #         for cluster in self.clusterStats["clusting"]:
-    #             values = self.clusterStats.loc[self.clusterStats["clusting"]==cluster, categories].values.flatten().tolist()
-    #             values += values[:1]  # close graph
-    #             minVal = int(np.floor(min(values) / 10) * 10)
-    #             maxVal = int(np.ceil(max(values) / 10) * 10)
-    #             # Change values to log
-    #             values = np.log10(values)
-    #             percentages = [x for x in range(minVal, maxVal+1, 10)]
-    #             logTicks = np.log10(percentages)
-    #             percentLabels = [f"{tick:d}%" for tick in percentages]
-    #             ax.plot(angles, values, linewidth=2, label=cluster)
-    #             ax.fill(angles, values, alpha=0.1)
-    #             ax.set_yticks(logTicks)
-    #             ax.set_yticklabels(percentLabels)
-    #     elif self.indicator == "ev":
-    #         values = self.clusterStats[["avgEV"]].values.tolist()
-    #         values += values[:1]  # close graph
-    #         ax.plot(angles, values, linewidth=2, label="Average EV number")
-    #         ax.fill(angles, values, alpha=0.1)
-
-    #     ax.set_xticks(angles[:-1])
-    #     ax.set_xticklabels(
-    #         xticklabels,
-    #         ha='center',
-    #         va='center'
-    #     )
-    #     # Adjust label position
-    #     for label, angle in zip(ax.get_xticklabels(), angles[:-1]):
-    #         x, y = label.get_position()
-    #         label.set_position((x, y-0.15))
-    #     plt.legend(
-    #         loc="lower right",
-    #         bbox_to_anchor=(0, 0)
-    #     )
-        
-    #     plt.tight_layout()
-    #     if self.path != "":
-    #         plt.savefig(os.path.join(self.path, "{}_{}_radar.jpg".format(self.indicator, self.analysisType)), dpi=300)
-    #     else:
-    #         plt.show()
-    #     plt.close()
-
-    #     return
-    
-    # def showTime(self) -> None:
-    #     data = self.df.copy()
-    #     data["earlistYear"] = 2025
-    #     for y in range(2015, 2025):
-    #         col = "Relative_Accessibility_{}".format(y) # Using Relative_Accessibility to determin the first deployment time
-    #         data.loc[(~data[col].isna()) & (data["earlistYear"] > y), ["earlistYear"]] = y
-        
-    #     allSet = []
-    #     clusting = data[self.analysisType].unique().tolist()
-    #     for c in clusting:
-    #         subdata: pd.DataFrame = data.loc[data[self.analysisType] == c]
-    #         yearSet = subdata.groupby("earlistYear").size().reset_index(name=c).set_index("earlistYear")
-    #         yearSet[c] = yearSet[c] / yearSet[c].sum() * 100
-    #         allSet.append(yearSet)
-
-    #     data: pd.DataFrame = allSet[0]
-    #     for i in allSet[1:]:
-    #         data = data.join(i, how="outer")
-    #     data = data.reindex(range(2015,2023), fill_value=0)
-    #     data.fillna(0, inplace=True)
-
-    #     # Cal cumulate
-    #     data = data.cumsum().round(4)
-    #     cols = data.columns.to_numpy()
-    #     cols.sort()
-    #     # Expand x and y data to plot steps
-    #     xFill = []
-    #     yFill = {x: [] for x in cols}
-    #     for i, year in enumerate(data.index):
-    #         xFill.append(year)
-    #         if i < len(data.index) - 1:
-    #             xFill.append(data.index[i+1])
-    #         for col in cols:
-    #             yFill[col].append(data[col].iloc[i])
-    #             # Add end point if not final year
-    #             if i < len(data.index) - 1:
-    #                 yFill[col].append(data[col].iloc[i])
-
-    #     fig = plt.figure(figsize=FIG_SIZE.N)
-    #     ax = fig.add_subplot()
-
-    #     for i, col in enumerate(cols):
-    #         # Using step="post" plot filling area
-    #         ax.fill_between(xFill, 0, yFill[col], alpha=0.5, label=col, step="post", color=BAR_COLORS[self.colorGroup][i])
-    #         # Plot steps cruve
-    #         ax.step(data.index, data[col], where="post", color=BAR_COLORS[self.colorGroup][i], linewidth=1.5)
-
-    #     plt.xlabel("Year")
-    #     plt.ylabel("Ratio of Cities First Deploy Charging Facilities (%)")
-    #     plt.xticks(data.index, data.index, rotation = 90) # type: ignore
-    #     # plt.legend()
-    #     plt.tight_layout()
-    #     if self.path != "":
-    #         plt.savefig(os.path.join(self.path, "{}_timeDistribution.jpg".format(self.analysisType)), dpi=300)
-    #     else:
-    #         plt.show()
-    #     plt.close()
-
-    #     return
     
     def drawClusting(self, figsize: str = "HH") -> None:
         if self.analysisValue == "":
