@@ -239,8 +239,8 @@ class populationAnalysis:
                 # Cal skew and variance in each year
                 yearsSorted = sorted(subdf["Year"].unique())
                 for idx, year in enumerate(yearsSorted):
-                    data: pd.DataFrame = subdf[(subdf["Year"] == year) & (subdf["Order"] == colNames[j])]["Value"]
-                    data = data.dropna()
+                    data = subdf[(subdf["Year"] == year) & (subdf["Order"] == colNames[j])]["Value"]
+                    data = pd.to_numeric(data, errors='coerce').dropna()
                     
                     if len(data) > 0:
                         skews = skew(data)
@@ -266,7 +266,7 @@ class populationAnalysis:
             formatter.set_scientific(False)
             if ax2 is not None:
                 ax2.grid(False)
-                ax2.get_legend().remove()
+                ax2.get_legend().remove() # type: ignore
                 if scal == "gender":
                     ax2.set_ylim(-10, 10)
                     ax2.set_yticks([-10, -1, 0, 1, 10])
@@ -310,13 +310,8 @@ class populationAnalysis:
                         ax.text(
                             x, textYPosition, 
                             f"SK:{stats["SK"]:.2f}\nSD:{stats["SD"]:.2f}", 
-                            ha="center", va="bottom", 
-                            # fontsize=int(TICK_SIZE * 0.9),
-                            color="black",
-                            # bbox=dict(boxstyle="round,pad=0.3", 
-                            #         facecolor='white', 
-                            #         alpha=0.8,
-                            #         edgecolor=palette[colNames[j]])
+                            ha="center", va="bottom",
+                            color="black"
                         )
 
             plt.tight_layout()
@@ -331,6 +326,7 @@ class populationAnalysis:
 
 # Debug
 if __name__ == "__main__":
+    AGG_DATA = os.path.join("China_Acc_Results", "Result")
     from multiFigs import multiFigs
     f = multiFigs(1, 3, figsize="H3W", sharex=True, sharey=False)
     x = ["city_optAcc_Female.csv", "city_optAcc_Male.csv"]
@@ -340,12 +336,12 @@ if __name__ == "__main__":
     # a.difference("M2SFCA_Gini")
     # a.difference("Relative_Accessibility", "paper\\figure\\fig4")
     # a.difference("M2SFCA_Accessibility", "paper\\figure\\fig4")
-    a = populationAnalysis(pd.DataFrame(), os.path.join("China_Acc_Results", "Result"), x, n)
+    a = populationAnalysis(pd.DataFrame(), AGG_DATA, x, n)
     a.difference("M2SFCA_Accessibility", "gender", ax=f.axs[0])
 
-    x = ["city_optAcc_All_middle.csv", "city_optAcc_All_old.csv", "city_optAcc_All_young.csv"] # "city_optAcc_All_children.csv" No need for children
+    x = ["city_optAcc_All_middle.csv", "city_optAcc_All_old.csv", "city_optAcc_All_young.csv"] # "city_efficiency_All_children.csv" No need for children
     n = "Age"
-    b = populationAnalysis(pd.DataFrame(), os.path.join("China_Acc_Results", "Result"), x, n)
+    b = populationAnalysis(pd.DataFrame(), AGG_DATA, x, n)
     b.difference("M2SFCA_Accessibility", "age", adj=1, ax=f.axs[1:])
 
     f.globalYlabel("Accessibility Gap", [1])
