@@ -10,8 +10,14 @@ except:
 class multiFigs:
     __slots__ = ["__axs", "__fig"]
 
-    def __init__(self, x: int, y: int, figsize: str = "D", sharex: bool = False, sharey: bool = False) -> None:
-        plotSet()
+    def __init__(
+        self,
+        x: int, y: int,
+        figsize: str = "D",
+        scale1: float = 1, scale2: float = 1,
+        sharex: bool = False, sharey: bool = False
+    ) -> None:
+        plotSet(scale1, scale2)
         self.__fig, axs = plt.subplots(y, x, figsize=getattr(FIG_SIZE, figsize), sharex=sharex, sharey=sharey)
         self.__axs: list[Axes] = axs.flatten()
 

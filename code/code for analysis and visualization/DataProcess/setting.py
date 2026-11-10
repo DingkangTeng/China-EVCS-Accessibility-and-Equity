@@ -64,6 +64,7 @@ def plotSet(scal1: float | int = 1, scal2: float | int = 1, modxy: bool = True) 
     plt.rcParams["font.size"] = tickSize
     plt.rcParams["xtick.labelsize"] = tickSize
     plt.rcParams["ytick.labelsize"] = tickSize
+    plt.rcParams["figure.labelsize"] = labelSize
     plt.rcParams["axes.labelsize"] = labelSize
     # legend format
     plt.rcParams["legend.facecolor"] = "white"

@@ -22,7 +22,6 @@ class populationAnalysis:
     __slots__ = ["classify", "classifyName", "basic", "dfList"]
 
     def __init__(self, basic: pd.DataFrame, root: str, populations: list[str], classify: str) -> None:
-        plotSet()
         self.dfList = []
         self.classify = []
         self.__creatdf(populations, root, classify, self.dfList, self.classify)
@@ -240,7 +239,7 @@ class populationAnalysis:
                 yearsSorted = sorted(subdf["Year"].unique())
                 for idx, year in enumerate(yearsSorted):
                     data = subdf[(subdf["Year"] == year) & (subdf["Order"] == colNames[j])]["Value"]
-                    data = pd.to_numeric(data, errors='coerce').dropna()
+                    data = pd.to_numeric(data, errors="coerce").dropna()
                     
                     if len(data) > 0:
                         skews = skew(data)
@@ -252,37 +251,13 @@ class populationAnalysis:
 
                 dif = (df["Value"].max() - df["Value"].min()) / 10
                 if dif < 0.1:
-                    linthresh = 0.001
                     f = "%.4f"
                 else:
-                    linthresh = 0.1
                     f = "%.2f"
                 
                 ax.yaxis.set_major_formatter(ticker.FormatStrFormatter(f))
                 ax.set_ylabel("")
-                # ax.set_yscale("symlog", linthresh=linthresh)
 
-            # formatter = ticker.ScalarFormatter()
-            # formatter.set_scientific(False)
-            # if ax2 is not None:
-            #     ax2.grid(False)
-            #     ax2.get_legend().remove() # type: ignore
-            #     if scal == "gender":
-            #         ax2.set_ylim(-10, 10)
-            #         ax2.set_yticks([-10, -1, 0, 1, 10])
-            #     else:
-            #         ax2.set_ylim(-1000, 1000)
-            #         ax2.set_yticks([-1000, -10, -1, 0, 1, 10, 1000])
-            #     ax2.yaxis.set_major_formatter(formatter)
-            
-            # if scal == "gender":
-            #     ax1.set_ylim(-10, 10)
-            #     ax1.set_yticks([-10, -1, 0, 1, 10])
-            # else:
-            #     ax1.set_ylim(-1000, 1000)
-            #     ax1.set_yticks([-1000, -10, -1, 0, 1, 10, 1000])
-            
-            # ax1.yaxis.set_major_formatter(formatter)
             formatter = ticker.ScalarFormatter()
             formatter.set_scientific(False)
             if ax2 is not None:
@@ -312,7 +287,6 @@ class populationAnalysis:
                 if ax is None:
                     continue
                     
-                _, yMax = ax.get_ylim()
                 textYPosition = 0.2
                 
                 for x in range(len(years)):
@@ -344,7 +318,7 @@ if __name__ == "__main__":
     AGG_DATA = os.path.join(RESULT_ROOT, "AggResult")
     FIG_PATH = os.path.join(RESULT_DATA_PATH, "figure")
     from multiFigs import multiFigs
-    f = multiFigs(1, 3, figsize="H3W", sharex=True, sharey=False)
+    f = multiFigs(1, 3, figsize="H3W", scale1=1.2, scale2=1.2, sharex=True, sharey=False)
     x = ["city_optAcc_Female.csv", "city_optAcc_Male.csv"]
     n = "Gender"
 
